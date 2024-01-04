@@ -17,7 +17,6 @@ import {
 } from './components/GeneralTags'
 import CodeBlockPre from './components/codeblock/CodeBlockPre'
 import { FC, memo } from 'react'
-import { rehypeImageSizeCache } from './components/plugin/RehypeImageSizeCache'
 
 const rpcOptions = {
   defaultLang: 'plaintext',
@@ -29,11 +28,7 @@ const rpcOptions = {
 const mdxOptions: any = {
   mdxOptions: {
     remarkPlugins: [remarkGfm, remarkBreaks],
-    rehypePlugins: [
-      rehypeSanitize,
-      [rehypePrettyCode, rpcOptions],
-      rehypeImageSizeCache,
-    ],
+    rehypePlugins: [rehypeSanitize, [rehypePrettyCode, rpcOptions]],
   },
 }
 
