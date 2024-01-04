@@ -44,7 +44,7 @@ export default function SigninPage() {
         ログインはユーザーを識別するために利用され、個人情報を収集することはありません
       </p>
       <p className="flex justify-center text-gray-400">
-        ユーザーの識別はGitHubのユーザー名を用いて行われます。
+        ユーザーの識別はGitHubのユーザー名を用いて行われます
       </p>
       <div className="w-fit mx-auto mt-4">
         <Button variant={'outline'}>
