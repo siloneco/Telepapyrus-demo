@@ -10,6 +10,7 @@ import {
 } from '@/layers/use-case/article/errors'
 import { PublishableDraft } from '@/layers/entity/types'
 import { getDraftUseCase } from '@/layers/use-case/draft/DraftUsesCase'
+import { MAX_ARTICLE_AMOUNT } from '@/lib/constants/UserLimits'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,6 +66,21 @@ export async function POST(request: Request, { params }: Props) {
   data.id = params.id
 
   if (data.update === undefined || data.update === false) {
+    const countResult = await getArticleUseCase().countArticle(username)
+    if (countResult.isFailure()) {
+      return NextResponse.json(
+        { error: 'Internal Server Error' },
+        { status: 500 },
+      )
+    }
+
+    if (countResult.value >= MAX_ARTICLE_AMOUNT) {
+      return NextResponse.json(
+        { error: 'You have already have too many articles' },
+        { status: 400 },
+      )
+    }
+
     const result = await getArticleUseCase().createArticle(username, data)
 
     if (result.isFailure()) {

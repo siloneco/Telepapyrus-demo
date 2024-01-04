@@ -52,7 +52,8 @@ const tagUseCaseMock: TagUseCase = {
       }
     }),
   listTags: jest.fn().mockImplementation(async () => {
-    throw new Error('Not Used and Not Implemented')
+    // for counting tags
+    return new Success([])
   }),
 }
 

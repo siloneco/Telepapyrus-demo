@@ -8,6 +8,7 @@ import {
   TagInvalidDataError,
   TagNotFoundError,
 } from '@/layers/use-case/tag/errors'
+import { MAX_TAG_AMOUNT } from '@/lib/constants/UserLimits'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,6 +61,21 @@ export async function DELETE(request: NextRequest, { params }: Props) {
 
   const { tag } = params
   const username: string = session.user.name
+
+  const listTagsResult = await getTagUseCase().listTags(username)
+  if (listTagsResult.isFailure()) {
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 },
+    )
+  }
+
+  if (listTagsResult.value.length >= MAX_TAG_AMOUNT) {
+    return NextResponse.json(
+      { error: 'You have already have too many tags' },
+      { status: 400 },
+    )
+  }
 
   const result = await getTagUseCase().deleteTag(username, tag)
 

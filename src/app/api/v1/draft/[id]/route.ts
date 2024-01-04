@@ -8,6 +8,10 @@ import {
   DraftNotFoundError,
 } from '@/layers/use-case/draft/errors'
 import { Draft } from '@/layers/entity/types'
+import NodeCache from 'node-cache'
+import { MAX_DRAFT_AMOUNT } from '@/lib/constants/UserLimits'
+
+const countCache = new NodeCache()
 
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +62,15 @@ export async function POST(request: NextRequest, { params }: Props) {
 
   data.id = id
 
+  const amount = countCache.get<number>(username) ?? 0
+
+  if (amount >= MAX_DRAFT_AMOUNT) {
+    return NextResponse.json(
+      { error: 'You have already too many drafts' },
+      { status: 400 },
+    )
+  }
+
   const result = await getDraftUseCase().saveDraft(username, data)
 
   if (result.isFailure()) {
@@ -70,6 +83,8 @@ export async function POST(request: NextRequest, { params }: Props) {
       { status: 500 },
     )
   }
+
+  countCache.set(username, amount + 1)
 
   return NextResponse.json({ status: 'ok' }, { status: 200 })
 }
@@ -98,6 +113,9 @@ export async function DELETE(request: NextRequest, { params }: Props) {
       { status: 500 },
     )
   }
+
+  const amount = countCache.get<number>(username) ?? 0
+  countCache.set(username, Math.max(amount - 1, 0))
 
   return NextResponse.json({ status: 'ok' }, { status: 200 })
 }
