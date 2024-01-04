@@ -43,7 +43,10 @@ CREATE TABLE `telepapyrus`.`tags` (
   `user` varchar(64) NOT NULL,
   `id` varchar(64) NOT NULL,
   `tag` varchar(64) NOT NULL,
-  PRIMARY KEY (`user`,`id`,`tag`)
+  PRIMARY KEY (`user`,`id`,`tag`),
+  KEY `tag_idx` (`user`,`tag`),
+  CONSTRAINT `id` FOREIGN KEY (`user`, `id`) REFERENCES `articles` (`user`, `id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `tag` FOREIGN KEY (`user`, `tag`) REFERENCES `allowed_tags` (`user`, `tag`) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 INSERT INTO `telepapyrus`.`tags` VALUES
