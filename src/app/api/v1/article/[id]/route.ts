@@ -57,7 +57,6 @@ export async function POST(request: Request, { params }: Props) {
   // Require authentication
   const session: any = await getServerSession(authOptions)
   if (!session || session.user?.name === undefined) {
-    console.log(session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

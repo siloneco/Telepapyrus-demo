@@ -60,7 +60,6 @@ export const saveDraft = async (data: Draft): Promise<boolean> => {
 }
 
 export const postDraftForCreate = async (data: Draft): Promise<boolean> => {
-  console.log('Creating...')
   const res = await fetch(`${getBaseURL()}/api/v1/article/${data.id}`, {
     method: 'POST',
     body: JSON.stringify(data),
@@ -70,7 +69,6 @@ export const postDraftForCreate = async (data: Draft): Promise<boolean> => {
 }
 
 export const postDraftForUpdate = async (data: Draft): Promise<boolean> => {
-  console.log('Updating...')
   const res = await fetch(`${getBaseURL()}/api/v1/article/${data.id}`, {
     method: 'POST',
     body: JSON.stringify({ ...data, update: true }),
