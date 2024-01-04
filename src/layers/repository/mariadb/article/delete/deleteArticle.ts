@@ -35,12 +35,14 @@ const createError = (
 }
 
 export const deleteArticle = async (
+  userId: string,
   id: string,
 ): Promise<DeleteArticleReturnProps> => {
   return withConnection(async (connection) => {
     try {
       await connection.beginTransaction()
       const deleteResult: any[] = await connection.query(deleteArticleQuery(), [
+        userId,
         id,
       ])
 

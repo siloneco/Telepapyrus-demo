@@ -20,6 +20,7 @@ import { Draft, PublishableDraft } from '@/layers/entity/types'
 import { getServerSession } from 'next-auth'
 import { DraftUseCase } from '@/layers/use-case/draft/interface'
 import { getDraftUseCase } from '@/layers/use-case/draft/DraftUsesCase'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const baseArticle: PresentationArticle = {
   id: 'id',
@@ -50,50 +51,58 @@ const mockKeyMap = {
 }
 
 const articleUseCaseMock: ArticleUseCase = {
-  createArticle: jest.fn().mockImplementation(async (draft: Draft) => {
-    if (draft.id === mockKeyMap.success) {
-      return new Success(baseArticle)
-    } else if (draft.id === mockKeyMap.alreadyExists) {
-      return new Failure(new ArticleAlreadyExistsError(''))
-    } else if (draft.id === mockKeyMap.invalidData) {
-      return new Failure(new ArticleInvalidDataError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
-  getArticle: jest.fn().mockImplementation(async (id: string) => {
-    if (id === mockKeyMap.success) {
-      return new Success(baseArticle)
-    } else if (id === mockKeyMap.notExists) {
-      return new Failure(new ArticleNotFoundError(''))
-    } else if (id === mockKeyMap.scopeError) {
-      return new Failure(new ArticleExcessiveScopeError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
-  updateArticle: jest.fn().mockImplementation(async (draft: Draft) => {
-    if (draft.id === mockKeyMap.success) {
-      return new Success(baseArticle)
-    } else if (draft.id === mockKeyMap.notExists) {
-      return new Failure(new ArticleNotFoundError(''))
-    } else if (draft.id === mockKeyMap.invalidData) {
-      return new Failure(new ArticleInvalidDataError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
-  deleteArticle: jest.fn().mockImplementation(async (id: string) => {
-    if (id === mockKeyMap.success) {
-      return new Success(baseArticle)
-    } else if (id === mockKeyMap.notExists) {
-      return new Failure(new ArticleNotFoundError(''))
-    } else if (id === mockKeyMap.scopeError) {
-      return new Failure(new ArticleExcessiveScopeError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
+  createArticle: jest
+    .fn()
+    .mockImplementation(async (_user: string, draft: Draft) => {
+      if (draft.id === mockKeyMap.success) {
+        return new Success(baseArticle)
+      } else if (draft.id === mockKeyMap.alreadyExists) {
+        return new Failure(new ArticleAlreadyExistsError(''))
+      } else if (draft.id === mockKeyMap.invalidData) {
+        return new Failure(new ArticleInvalidDataError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
+  getArticle: jest
+    .fn()
+    .mockImplementation(async (_user: string, id: string) => {
+      if (id === mockKeyMap.success) {
+        return new Success(baseArticle)
+      } else if (id === mockKeyMap.notExists) {
+        return new Failure(new ArticleNotFoundError(''))
+      } else if (id === mockKeyMap.scopeError) {
+        return new Failure(new ArticleExcessiveScopeError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
+  updateArticle: jest
+    .fn()
+    .mockImplementation(async (_user: string, draft: Draft) => {
+      if (draft.id === mockKeyMap.success) {
+        return new Success(baseArticle)
+      } else if (draft.id === mockKeyMap.notExists) {
+        return new Failure(new ArticleNotFoundError(''))
+      } else if (draft.id === mockKeyMap.invalidData) {
+        return new Failure(new ArticleInvalidDataError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
+  deleteArticle: jest
+    .fn()
+    .mockImplementation(async (_user: string, id: string) => {
+      if (id === mockKeyMap.success) {
+        return new Success(baseArticle)
+      } else if (id === mockKeyMap.notExists) {
+        return new Failure(new ArticleNotFoundError(''))
+      } else if (id === mockKeyMap.scopeError) {
+        return new Failure(new ArticleExcessiveScopeError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
   countArticle: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
@@ -103,9 +112,11 @@ const articleUseCaseMock: ArticleUseCase = {
 }
 
 const draftUseCaseMock: DraftUseCase = {
-  deleteDraft: jest.fn().mockImplementation(async (_id: string) => {
-    return new Success(true)
-  }),
+  deleteDraft: jest
+    .fn()
+    .mockImplementation(async (_user: string, _id: string) => {
+      return new Success(true)
+    }),
   saveDraft: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
@@ -134,7 +145,7 @@ describe('GET /api/v1/article/[id]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you do not have permission', async () => {
@@ -203,7 +214,7 @@ describe('POST /api/v1/article/[id]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you do not have permission', async () => {
@@ -335,7 +346,7 @@ describe('DELETE /api/v1/article/[id]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you do not have permission', async () => {

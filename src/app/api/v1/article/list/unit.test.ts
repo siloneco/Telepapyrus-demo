@@ -1,4 +1,5 @@
 jest.mock('@/layers/use-case/article/ArticleUseCase')
+jest.mock('next-auth')
 
 import { NextRequest, NextResponse } from 'next/server'
 import { GET } from './route'
@@ -8,6 +9,8 @@ import {
 } from '@/layers/use-case/article/ArticleUseCase'
 import { ArticleUseCase } from '@/layers/use-case/article/interface'
 import { Failure, Success } from '@/lib/utils/Result'
+import { getServerSession } from 'next-auth'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const baseData: PresentationArticle = {
   id: 'id',
@@ -48,6 +51,22 @@ beforeAll(() => {
 })
 
 describe('GET /api/v1/article/list', () => {
+  beforeAll(() => {
+    const getServerSessionMock = getServerSession as jest.Mock
+    getServerSessionMock
+      .mockClear()
+      .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
+  })
+
+  it('responds 401 (Unauthorized) when you does not have permission', async () => {
+    const req = new NextRequest('http://localhost/')
+
+    const data: NextResponse<any> = await GET(req)
+
+    expect(data.status).toBe(401)
+  })
+
   it('responds 200 (OK) and correct list of article data', async () => {
     const tag = 'tmp-test-api-list-success-tag'
 
@@ -65,7 +84,7 @@ describe('GET /api/v1/article/list', () => {
 
     const callLength = 1
     expect(listArticleMock.mock.calls).toHaveLength(callLength)
-    expect(listArticleMock.mock.calls[callLength - 1][0]).toEqual({
+    expect(listArticleMock.mock.calls[callLength - 1][1]).toEqual({
       tags: [tag],
       page: 1,
     })
@@ -111,7 +130,7 @@ describe('GET /api/v1/article/list', () => {
 
     const callLength = 3
     expect(listArticleMock.mock.calls).toHaveLength(callLength)
-    expect(listArticleMock.mock.calls[callLength - 1][0]).toEqual({
+    expect(listArticleMock.mock.calls[callLength - 1][1]).toEqual({
       page: page,
     })
   })
@@ -130,7 +149,7 @@ describe('GET /api/v1/article/list', () => {
 
     const callLength = 4
     expect(listArticleMock.mock.calls).toHaveLength(callLength)
-    expect(listArticleMock.mock.calls[callLength - 1][0]).toEqual({
+    expect(listArticleMock.mock.calls[callLength - 1][1]).toEqual({
       page: 1,
       tags: tags,
     })

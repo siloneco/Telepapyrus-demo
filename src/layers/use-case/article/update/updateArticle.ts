@@ -5,11 +5,12 @@ import { PublishableDraft } from '@/layers/entity/types'
 
 export const updateArticle = async (
   repo: ArticleRepository,
+  userId: string,
   draft: PublishableDraft,
 ): Promise<
   Result<true, ArticleNotFoundError | ArticleInvalidDataError | Error>
 > => {
-  const result = await repo.updateArticle(draft)
+  const result = await repo.updateArticle(userId, draft)
   if (result.success) {
     return new Success(true)
   }

@@ -8,9 +8,14 @@ import {
   PresentationArticle,
   getArticleUseCase,
 } from '@/layers/use-case/article/ArticleUseCase'
+import { getServerSession } from 'next-auth'
+import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
 
-async function getArticle(id: string): Promise<PresentationArticle | null> {
-  const result = await getArticleUseCase().getArticle(id)
+async function getArticle(
+  username: string,
+  id: string,
+): Promise<PresentationArticle | null> {
+  const result = await getArticleUseCase().getArticle(username, id)
   if (result.isSuccess()) {
     return result.value
   }
@@ -27,26 +32,39 @@ export async function generateMetadata(
   { params }: MetadataProps,
   _parent: ResolvingMetadata,
 ): Promise<Metadata> {
-  const NOT_FOUND_PAGE_TITLE = '404 Not Found | Silolab Blog'
+  const NOT_FOUND_PAGE_TITLE = '404 Not Found | Telepapyrus'
   const id = decodeURI(params.id)
 
   if (id.length > ARTICLE_ID_MAX_LENGTH || !isValidID(id)) {
     return {
       title: NOT_FOUND_PAGE_TITLE,
+      robots: 'noindex',
     }
   }
 
-  const data: PresentationArticle | null = await getArticle(id)
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
+    return {
+      title: NOT_FOUND_PAGE_TITLE,
+      robots: 'noindex',
+    }
+  }
+
+  const username: string = session.user?.name
+
+  const data: PresentationArticle | null = await getArticle(username, id)
 
   if (data === null) {
     return {
       title: NOT_FOUND_PAGE_TITLE,
+      robots: 'noindex',
     }
   }
 
   return {
     title: data.title,
     description: data.description,
+    robots: 'noindex',
   }
 }
 
@@ -63,7 +81,14 @@ export default async function Page({ params }: PageProps) {
     notFound()
   }
 
-  const data: PresentationArticle | null = await getArticle(id)
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
+    notFound()
+  }
+
+  const username: string = session.user?.name
+
+  const data: PresentationArticle | null = await getArticle(username, id)
 
   if (data === null) {
     notFound()

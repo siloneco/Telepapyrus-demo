@@ -5,6 +5,8 @@ import {
   ArticleExcessiveScopeError,
   ArticleUnexpectedReturnValueError,
 } from '@/layers/use-case/article/errors'
+import { getServerSession } from 'next-auth'
+import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +15,13 @@ type ReturnProps = {
 }
 
 export async function GET(request: NextRequest) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const username: string = session.user.name
+
   const searchParams = request.nextUrl.searchParams
   const tags: string[] | undefined =
     searchParams.get('tags')?.split(',') ?? undefined
@@ -28,7 +37,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const result = await getArticleUseCase().countArticle(tags)
+  const result = await getArticleUseCase().countArticle(username, tags)
 
   if (result.isFailure()) {
     const error = result.error

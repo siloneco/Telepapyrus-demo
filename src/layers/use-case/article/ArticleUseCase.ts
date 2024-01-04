@@ -11,15 +11,17 @@ import { flushListCache, listArticle } from './list/listArticle'
 import { ArticleUseCase } from './interface'
 import { countArticle, flushCountCache } from './count/countArticle'
 import { Result } from '@/lib/utils/Result'
+import { sha256 } from '@/lib/utils'
 
 const flushCachesIfSuccess = (
   result: Result<any, any>,
   flushCacheFunctions: FlushCacheFunction[],
+  userId: string,
   id: string,
 ) => {
   if (result.isSuccess()) {
     // no await
-    Promise.all(flushCacheFunctions.map((fn) => fn(id)))
+    Promise.all(flushCacheFunctions.map((fn) => fn(userId, id)))
   }
 }
 
@@ -44,7 +46,7 @@ export type ListArticleProps = {
   page?: number
 }
 
-export type FlushCacheFunction = (_id: string) => Promise<void>
+export type FlushCacheFunction = (_userId: string, _id: string) => Promise<void>
 
 const createUseCase = (repo: ArticleRepository): ArticleUseCase => {
   const flushCacheFunctions: FlushCacheFunction[] = [
@@ -54,25 +56,46 @@ const createUseCase = (repo: ArticleRepository): ArticleUseCase => {
   ]
 
   return {
-    createArticle: async (draft: PublishableDraft) => {
-      const result = await createArticle(repo, draft)
-      flushCachesIfSuccess(result, flushCacheFunctions, draft.id)
+    createArticle: async (username: string, draft: PublishableDraft) => {
+      const hashedUsername = sha256(username)
+      const result = await createArticle(repo, hashedUsername, draft)
+      flushCachesIfSuccess(
+        result,
+        flushCacheFunctions,
+        hashedUsername,
+        draft.id,
+      )
       return result
     },
-    updateArticle: async (draft: PublishableDraft) => {
-      const result = await updateArticle(repo, draft)
-      flushCachesIfSuccess(result, flushCacheFunctions, draft.id)
+    updateArticle: async (username: string, draft: PublishableDraft) => {
+      const hashedUsername = sha256(username)
+      const result = await updateArticle(repo, hashedUsername, draft)
+      flushCachesIfSuccess(
+        result,
+        flushCacheFunctions,
+        hashedUsername,
+        draft.id,
+      )
       return result
     },
-    deleteArticle: async (id: string) => {
-      const result = await deleteArticle(repo, id)
-      flushCachesIfSuccess(result, flushCacheFunctions, id)
+    deleteArticle: async (username: string, id: string) => {
+      const hashedUsername = sha256(username)
+      const result = await deleteArticle(repo, hashedUsername, id)
+      flushCachesIfSuccess(result, flushCacheFunctions, hashedUsername, id)
       return result
     },
-    getArticle: async (id: string) => await getArticle(repo, id),
-    countArticle: async (tags?: string[]) => await countArticle(repo, tags),
-    listArticle: async (data: ListArticleProps) =>
-      await listArticle(repo, data),
+    getArticle: async (username: string, id: string) => {
+      const hashedUsername = sha256(username)
+      return await getArticle(repo, hashedUsername, id)
+    },
+    countArticle: async (username: string, tags?: string[]) => {
+      const hashedUsername = sha256(username)
+      return await countArticle(repo, hashedUsername, tags)
+    },
+    listArticle: async (username: string, data: ListArticleProps) => {
+      const hashedUsername = sha256(username)
+      return await listArticle(repo, hashedUsername, data)
+    },
   }
 }
 

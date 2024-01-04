@@ -5,6 +5,7 @@ import getConnectionPool from '../../connection/getConnectionPool'
 import { deleteDraft } from './deleteDraft'
 import { saveDraft } from '../save/saveDraft'
 import { getDeleteDraftSQL as dummyGetDeleteDraftSQL } from './query'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const { getDeleteDraftSQL } = jest.requireActual('./query')
 
@@ -13,6 +14,8 @@ const baseData: Draft = {
   title: 'title',
   content: 'content',
 }
+
+const user = getTestUsername()
 
 const milliSec = () => {
   return new Date().getTime()
@@ -27,9 +30,9 @@ describe('deleteDraft', () => {
   it('deletes draft correctly', async () => {
     const id = `tmp-test-draft-delete-success-${milliSec()}`
 
-    await saveDraft({ ...baseData, id: id })
+    await saveDraft(user, { ...baseData, id: id })
 
-    expect(await deleteDraft(id)).toMatchObject({
+    expect(await deleteDraft(user, id)).toMatchObject({
       success: true,
     })
   })
@@ -37,7 +40,7 @@ describe('deleteDraft', () => {
   it('rejects when the draft is not exists', async () => {
     const id = `tmp-test-draft-delete-fail-not-found-${milliSec()}`
 
-    expect(await deleteDraft(id)).toMatchObject({
+    expect(await deleteDraft(user, id)).toMatchObject({
       success: false,
       error: {
         id: 'not-exists',
@@ -52,7 +55,7 @@ describe('deleteDraft', () => {
       `DELETE FROM drafts WHERE id LIKE '${baseId}-%';`,
     )
 
-    expect(await deleteDraft(baseId)).toMatchObject({
+    expect(await deleteDraft(user, baseId)).toMatchObject({
       success: false,
       error: {
         id: 'too-many-rows-affected',

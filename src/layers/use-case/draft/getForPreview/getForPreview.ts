@@ -14,9 +14,10 @@ const convertToPresentationDraft = (draft: Draft) => {
 
 export const getDraftForPreview = async (
   repo: DraftRepository,
+  userId: string,
   id: string,
 ): Promise<Result<PresentationDraft, DraftNotFoundError | Error>> => {
-  const result = await repo.getDraftForPreview(id)
+  const result = await repo.getDraftForPreview(userId, id)
   if (result.success) {
     const presentationDraft = convertToPresentationDraft(result.data!)
     return new Success(presentationDraft)

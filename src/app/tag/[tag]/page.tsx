@@ -8,12 +8,15 @@ import {
   getArticleUseCase,
 } from '@/layers/use-case/article/ArticleUseCase'
 import { convertSearchParamPageToInteger } from '@/lib/utils'
+import { getServerSession } from 'next-auth'
+import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 async function getArticles(
+  username: string,
   tag: string,
   page: number = 1,
 ): Promise<PresentationArticleOverview[] | null> {
-  const result = await getArticleUseCase().listArticle({
+  const result = await getArticleUseCase().listArticle(username, {
     tags: [tag],
     page: page,
   })
@@ -25,8 +28,11 @@ async function getArticles(
   return null
 }
 
-async function getMaxPageNumber(tag: string): Promise<number | null> {
-  const result = await getArticleUseCase().countArticle([tag])
+async function getMaxPageNumber(
+  username: string,
+  tag: string,
+): Promise<number | null> {
+  const result = await getArticleUseCase().countArticle(username, [tag])
 
   if (result.isSuccess()) {
     return Math.ceil(result.value / 10)
@@ -61,8 +67,15 @@ export default async function Page({ params, searchParams }: Props) {
     notFound()
   }
 
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
+    notFound()
+  }
+
+  const username: string = session.user?.name
+
   const rawPage = searchParams['page']
-  const maxPageNum: number = (await getMaxPageNumber(tag)) ?? 1
+  const maxPageNum: number = (await getMaxPageNumber(username, tag)) ?? 1
   const pageParseResult = convertSearchParamPageToInteger(rawPage, maxPageNum)
 
   if (!pageParseResult.isValid && !pageParseResult.fallback) {
@@ -76,6 +89,7 @@ export default async function Page({ params, searchParams }: Props) {
   const page: number = pageParseResult.page!
 
   const data: PresentationArticleOverview[] | null = await getArticles(
+    username,
     tag,
     page,
   )

@@ -26,13 +26,25 @@ import {
 } from './mariadb/article/update/updateArticle'
 
 export interface ArticleRepository {
-  createArticle(_draft: PublishableDraft): Promise<CreateArticleReturnProps>
-  getArticle(_id: string): Promise<GetArticleReturnProps>
-  updateArticle(_draft: PublishableDraft): Promise<UpdateArticleReturnProps>
-  deleteArticle(_id: string): Promise<DeleteArticleReturnProps>
+  createArticle(
+    _user: string,
+    _draft: PublishableDraft,
+  ): Promise<CreateArticleReturnProps>
+  getArticle(_user: string, _id: string): Promise<GetArticleReturnProps>
+  updateArticle(
+    _user: string,
+    _draft: PublishableDraft,
+  ): Promise<UpdateArticleReturnProps>
+  deleteArticle(_user: string, _id: string): Promise<DeleteArticleReturnProps>
 
-  countArticle(_tags?: string[]): Promise<CountArticleReturnProps>
-  listArticle(_props: ListArticleProps): Promise<ListArticleReturnProps>
+  countArticle(
+    _user: string,
+    _tags?: string[],
+  ): Promise<CountArticleReturnProps>
+  listArticle(
+    _user: string,
+    _props: ListArticleProps,
+  ): Promise<ListArticleReturnProps>
 }
 
 export const getRepository = (): ArticleRepository => {

@@ -3,11 +3,9 @@ on:
   push:
     paths-ignore:
       - '**.md'
-      - 'renovate.json'
   pull_request:
     paths-ignore:
       - '**.md'
-      - 'renovate.json'
 
 jobs:
   test:

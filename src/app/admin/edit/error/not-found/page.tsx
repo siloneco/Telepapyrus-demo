@@ -3,7 +3,7 @@ import { FolderLock } from 'lucide-react'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '記事が見つかりません | Silolab Blog',
+  title: '記事が見つかりません | Telepapyrus',
 }
 
 export default function Page() {

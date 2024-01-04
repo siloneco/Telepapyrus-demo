@@ -33,12 +33,13 @@ const createError = (error: any): CreateArticleReturnProps => {
 }
 
 export const createArticle = async (
+  userId: string,
   draft: PublishableDraft,
 ): Promise<CreateArticleReturnProps> => {
   const tagInsertValues: string[][] = []
   if (draft.tags) {
     draft.tags.forEach((tag) => {
-      tagInsertValues.push([draft.id, tag])
+      tagInsertValues.push([userId, draft.id, tag])
     })
   }
 
@@ -47,6 +48,7 @@ export const createArticle = async (
       await connection.beginTransaction()
 
       await connection.query(insertArticleSQL, [
+        userId,
         draft.id,
         draft.title,
         draft.description,

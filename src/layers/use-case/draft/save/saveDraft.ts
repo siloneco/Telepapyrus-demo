@@ -5,9 +5,10 @@ import { DraftRepository } from '@/layers/repository/DraftRepository'
 
 export const saveDraft = async (
   repo: DraftRepository,
+  userId: string,
   draft: Draft,
 ): Promise<Result<true, DraftInvalidDataError | Error>> => {
-  const result = await repo.saveDraft(draft)
+  const result = await repo.saveDraft(userId, draft)
   if (result.success) {
     return new Success(true)
   }

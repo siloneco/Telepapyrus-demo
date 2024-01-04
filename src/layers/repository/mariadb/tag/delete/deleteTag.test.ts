@@ -1,11 +1,14 @@
 jest.mock('./query')
 
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { createTag } from '../create/createTag'
 import { deleteTag } from './deleteTag'
 import { getDeleteTagSQL as dummyGetDeleteTagSQL } from './query'
 
 const { getDeleteTagSQL } = jest.requireActual('./query')
+
+const user = getTestUsername()
 
 const milliSec = () => {
   return new Date().getTime()
@@ -20,9 +23,9 @@ describe('deleteTag', () => {
   it('deletes tag correctly', async () => {
     const tag = `tmp-test-tag-create-success-${milliSec()}`
 
-    await createTag(tag)
+    await createTag(user, tag)
 
-    expect(await deleteTag(tag)).toMatchObject({
+    expect(await deleteTag(user, tag)).toMatchObject({
       success: true,
     })
   })
@@ -30,7 +33,7 @@ describe('deleteTag', () => {
   it('rejects when tag not found', async () => {
     const tag = `tmp-test-tag-delete-fail-not-exists-${milliSec()}`
 
-    expect(await deleteTag(tag)).toMatchObject({
+    expect(await deleteTag(user, tag)).toMatchObject({
       success: false,
       error: {
         id: 'not-exists',
@@ -46,7 +49,7 @@ describe('deleteTag', () => {
       `DELETE FROM allowed_tags WHERE tag LIKE '${tagStartsWith}-%';`,
     )
 
-    expect(await deleteTag(tagStartsWith)).toMatchObject({
+    expect(await deleteTag(user, tagStartsWith)).toMatchObject({
       success: false,
       error: {
         id: 'too-many-rows-affected',

@@ -13,6 +13,7 @@ import {
   TagNotFoundError,
 } from '@/layers/use-case/tag/errors'
 import { getServerSession } from 'next-auth'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const mockKeyMap = {
   success: 'success',
@@ -24,28 +25,32 @@ const mockKeyMap = {
 }
 
 const tagUseCaseMock: TagUseCase = {
-  createTag: jest.fn().mockImplementation(async (id: string) => {
-    if (id === mockKeyMap.success) {
-      return new Success(true)
-    } else if (id === mockKeyMap.invalidData) {
-      return new Failure(new TagInvalidDataError(''))
-    } else if (id === mockKeyMap.alreadyExists) {
-      return new Failure(new TagAlreadyExistsError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
-  deleteTag: jest.fn().mockImplementation(async (id: string) => {
-    if (id === mockKeyMap.success) {
-      return new Success(true)
-    } else if (id === mockKeyMap.notExists) {
-      return new Failure(new TagNotFoundError(''))
-    } else if (id === mockKeyMap.scopeError) {
-      return new Failure(new TagExcessiveScopeError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
+  createTag: jest
+    .fn()
+    .mockImplementation(async (username: string, id: string) => {
+      if (id === mockKeyMap.success) {
+        return new Success(true)
+      } else if (id === mockKeyMap.invalidData) {
+        return new Failure(new TagInvalidDataError(''))
+      } else if (id === mockKeyMap.alreadyExists) {
+        return new Failure(new TagAlreadyExistsError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
+  deleteTag: jest
+    .fn()
+    .mockImplementation(async (username: string, id: string) => {
+      if (id === mockKeyMap.success) {
+        return new Success(true)
+      } else if (id === mockKeyMap.notExists) {
+        return new Failure(new TagNotFoundError(''))
+      } else if (id === mockKeyMap.scopeError) {
+        return new Failure(new TagExcessiveScopeError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
   listTags: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
@@ -62,7 +67,7 @@ describe('POST /api/v1/tag/[tag]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you do not have permission', async () => {
@@ -94,7 +99,7 @@ describe('POST /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(200)
     expect(createTagMock).toHaveBeenCalledTimes(1)
-    expect(createTagMock.mock.calls[0][0]).toBe(mockKeyMap.success)
+    expect(createTagMock.mock.calls[0][1]).toBe(mockKeyMap.success)
   })
 
   it('responds 409 (Conflict) when the tag already exists', async () => {
@@ -112,7 +117,7 @@ describe('POST /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(409)
     expect(createTagMock).toHaveBeenCalledTimes(2)
-    expect(createTagMock.mock.calls[1][0]).toBe(mockKeyMap.alreadyExists)
+    expect(createTagMock.mock.calls[1][1]).toBe(mockKeyMap.alreadyExists)
   })
 
   it('responds 400 (Bad Request) when invalid tag name specified', async () => {
@@ -130,7 +135,7 @@ describe('POST /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(400)
     expect(createTagMock).toHaveBeenCalledTimes(3)
-    expect(createTagMock.mock.calls[2][0]).toBe(mockKeyMap.invalidData)
+    expect(createTagMock.mock.calls[2][1]).toBe(mockKeyMap.invalidData)
   })
 
   it('responds 500 (Internal Server Error) when unknown error occured', async () => {
@@ -148,7 +153,7 @@ describe('POST /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(500)
     expect(createTagMock).toHaveBeenCalledTimes(4)
-    expect(createTagMock.mock.calls[3][0]).toBe(mockKeyMap.error)
+    expect(createTagMock.mock.calls[3][1]).toBe(mockKeyMap.error)
   })
 })
 
@@ -158,7 +163,7 @@ describe('DELETE /api/v1/tag/[tag]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you do not have permission', async () => {
@@ -190,7 +195,7 @@ describe('DELETE /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(200)
     expect(deleteTagMock).toHaveBeenCalledTimes(1)
-    expect(deleteTagMock.mock.calls[0][0]).toBe(mockKeyMap.success)
+    expect(deleteTagMock.mock.calls[0][1]).toBe(mockKeyMap.success)
   })
 
   it('responds 404 (Not Found) when the tag does not exists', async () => {
@@ -208,7 +213,7 @@ describe('DELETE /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(404)
     expect(deleteTagMock).toHaveBeenCalledTimes(2)
-    expect(deleteTagMock.mock.calls[1][0]).toBe(mockKeyMap.notExists)
+    expect(deleteTagMock.mock.calls[1][1]).toBe(mockKeyMap.notExists)
   })
 
   it('responds 500 (Internal Server Error) when the tag has excessive scope', async () => {
@@ -226,7 +231,7 @@ describe('DELETE /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(500)
     expect(deleteTagMock).toHaveBeenCalledTimes(3)
-    expect(deleteTagMock.mock.calls[2][0]).toBe(mockKeyMap.scopeError)
+    expect(deleteTagMock.mock.calls[2][1]).toBe(mockKeyMap.scopeError)
   })
 
   it('responds 500 (Internal Server Error) when unknown error occured', async () => {
@@ -244,6 +249,6 @@ describe('DELETE /api/v1/tag/[tag]', () => {
 
     expect(result.status).toBe(500)
     expect(deleteTagMock).toHaveBeenCalledTimes(4)
-    expect(deleteTagMock.mock.calls[3][0]).toBe(mockKeyMap.error)
+    expect(deleteTagMock.mock.calls[3][1]).toBe(mockKeyMap.error)
   })
 })

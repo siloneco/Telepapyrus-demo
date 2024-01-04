@@ -7,11 +7,12 @@ import {
 import { FlushCacheFunction } from '../ArticleUseCase'
 import NodeCache from 'node-cache'
 
-const cache = new NodeCache()
+const cacheMap = new Map<string, NodeCache>()
 const cacheTTL = 60
 
 export const countArticle = async (
   repo: ArticleRepository,
+  userId: string,
   tags?: string[],
 ): Promise<
   Result<
@@ -21,12 +22,18 @@ export const countArticle = async (
 > => {
   const cacheKey = tags ? JSON.stringify(tags?.sort()) : 'all'
 
-  const cached = cache.get<number>(cacheKey)
+  const cache: NodeCache = cacheMap.has(userId)
+    ? cacheMap.get(userId)!
+    : new NodeCache()
+
+  cacheMap.set(userId, cache)
+
+  const cached = cacheMap.get(userId)!.get<number>(cacheKey)
   if (cached) {
     return new Success(cached)
   }
 
-  const result = await repo.countArticle(tags)
+  const result = await repo.countArticle(userId, tags)
   if (result.success) {
     const data = result.data!
     cache.set(cacheKey, data, cacheTTL)
@@ -50,6 +57,9 @@ export const countArticle = async (
   )
 }
 
-export const flushCountCache: FlushCacheFunction = async (_id: string) => {
-  cache.flushAll()
+export const flushCountCache: FlushCacheFunction = async (
+  userId: string,
+  _id: string,
+) => {
+  cacheMap.delete(userId)
 }

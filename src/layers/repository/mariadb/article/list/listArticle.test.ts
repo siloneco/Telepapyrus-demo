@@ -1,5 +1,8 @@
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { listArticle } from './listArticle'
+
+const user = getTestUsername()
 
 const checkTypes = (articles: any[] | undefined) => {
   expect(articles).toBeInstanceOf(Array)
@@ -27,7 +30,7 @@ const checkTypes = (articles: any[] | undefined) => {
 
 describe('listArticle', () => {
   it('gets all articles correctly', async () => {
-    const returnedValue = await listArticle({})
+    const returnedValue = await listArticle(user, {})
 
     expect(returnedValue).toMatchObject({
       success: true,
@@ -40,7 +43,7 @@ describe('listArticle', () => {
 
   it('gets articles correctly by specifying tags', async () => {
     const tagName = 'test-article-list-success-specific-tag'
-    const returnedValue = await listArticle({ tags: [tagName], page: 1 })
+    const returnedValue = await listArticle(user, { tags: [tagName], page: 1 })
 
     expect(returnedValue).toMatchObject({
       success: true,
@@ -57,7 +60,7 @@ describe('listArticle', () => {
 
   it('gets correct amount of articles by specifying page', async () => {
     const amount = 10
-    const returnedValue = await listArticle({ page: 1 })
+    const returnedValue = await listArticle(user, { page: 1 })
 
     expect(returnedValue).toMatchObject({
       success: true,

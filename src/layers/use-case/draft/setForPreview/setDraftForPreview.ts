@@ -4,9 +4,10 @@ import { DraftRepository } from '@/layers/repository/DraftRepository'
 
 export const setDraftForPreview = async (
   repo: DraftRepository,
+  userId: string,
   draft: Draft,
 ): Promise<Result<true, Error>> => {
-  const result = await repo.setDraftForPreview(draft)
+  const result = await repo.setDraftForPreview(userId, draft)
   if (result.success) {
     return new Success(true)
   }

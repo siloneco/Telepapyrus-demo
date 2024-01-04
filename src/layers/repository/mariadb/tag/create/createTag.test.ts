@@ -1,5 +1,8 @@
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { createTag } from './createTag'
+
+const user = getTestUsername()
 
 const milliSec = () => {
   return new Date().getTime()
@@ -9,7 +12,7 @@ describe('createTag', () => {
   it('creates tag correctly', async () => {
     const tag = `tmp-test-tag-create-success-${milliSec()}`
 
-    expect(await createTag(tag)).toMatchObject({
+    expect(await createTag(user, tag)).toMatchObject({
       success: true,
     })
   })
@@ -18,7 +21,7 @@ describe('createTag', () => {
     const longString = 'a'.repeat(256)
     const tag = `tmp-test-tag-create-fail-with-id-too-long-${longString}-${milliSec()}`
 
-    expect(await createTag(tag)).toMatchObject({
+    expect(await createTag(user, tag)).toMatchObject({
       success: false,
       error: {
         id: 'invalid-data',
@@ -29,7 +32,7 @@ describe('createTag', () => {
   it('rejects when tag is already exists', async () => {
     const tag = 'test-tag-create-fail-already-exists'
 
-    expect(await createTag(tag)).toMatchObject({
+    expect(await createTag(user, tag)).toMatchObject({
       success: false,
       error: {
         id: 'already-exists',

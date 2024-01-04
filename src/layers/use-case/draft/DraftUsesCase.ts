@@ -9,6 +9,7 @@ import { Draft } from '@/layers/entity/types'
 import { setDraftForPreview } from './setForPreview/setDraftForPreview'
 import { getDraftForPreview } from './getForPreview/getForPreview'
 import { deleteDraft } from './delete/deleteDraft'
+import { sha256 } from '@/lib/utils'
 
 export type PresentationDraft = {
   id: string
@@ -18,12 +19,26 @@ export type PresentationDraft = {
 
 const createUseCase = (repo: DraftRepository): DraftUseCase => {
   return {
-    getDraft: async (id: string) => getDraft(repo, id),
-    saveDraft: async (draft: Draft) => saveDraft(repo, draft),
-    deleteDraft: async (id: string) => deleteDraft(repo, id),
-
-    setDraftForPreview: async (draft: Draft) => setDraftForPreview(repo, draft),
-    getDraftForPreview: async (id: string) => getDraftForPreview(repo, id),
+    getDraft: async (username: string, id: string) => {
+      const hashedUsername = sha256(username)
+      return getDraft(repo, hashedUsername, id)
+    },
+    saveDraft: async (username: string, draft: Draft) => {
+      const hashedUsername = sha256(username)
+      return saveDraft(repo, hashedUsername, draft)
+    },
+    deleteDraft: async (username: string, id: string) => {
+      const hashedUsername = sha256(username)
+      return deleteDraft(repo, hashedUsername, id)
+    },
+    setDraftForPreview: async (username: string, draft: Draft) => {
+      const hashedUsername = sha256(username)
+      return setDraftForPreview(repo, hashedUsername, draft)
+    },
+    getDraftForPreview: async (username: string, id: string) => {
+      const hashedUsername = sha256(username)
+      return getDraftForPreview(repo, hashedUsername, id)
+    },
   }
 }
 

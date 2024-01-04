@@ -33,12 +33,18 @@ const createError = (id: ErrorIDs, msg?: string): DeleteTagReturnProps => {
   return data
 }
 
-export const deleteTag = async (tag: string): Promise<DeleteTagReturnProps> => {
+export const deleteTag = async (
+  userId: string,
+  tag: string,
+): Promise<DeleteTagReturnProps> => {
   return await withConnection(async (connection: PoolConnection) => {
     try {
       await connection.beginTransaction()
 
-      const result: any[] = await connection.query(getDeleteTagSQL(), [tag])
+      const result: any[] = await connection.query(getDeleteTagSQL(), [
+        userId,
+        tag,
+      ])
 
       const affectedRows: number = result[0].affectedRows
 

@@ -13,6 +13,7 @@ import {
   DraftInvalidDataError,
   DraftNotFoundError,
 } from '@/layers/use-case/draft/errors'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const baseData: Draft = {
   id: 'id',
@@ -30,37 +31,43 @@ const mockKeyMap = {
 }
 
 const draftUseCaseMock: DraftUseCase = {
-  saveDraft: jest.fn().mockImplementation(async (draft: Draft) => {
-    if (draft.id === mockKeyMap.success) {
-      return new Success(true)
-    } else if (draft.id === mockKeyMap.invalidData) {
-      return new Failure(new DraftInvalidDataError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
-  getDraft: jest.fn().mockImplementation(async (id: string) => {
-    if (id === mockKeyMap.success) {
-      return new Success(baseData)
-    } else if (id === mockKeyMap.notExists) {
-      return new Failure(new DraftNotFoundError(''))
-    } else if (id === mockKeyMap.scopeError) {
-      return new Failure(new DraftExcessiveScopeError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
-  deleteDraft: jest.fn().mockImplementation(async (id: string) => {
-    if (id === mockKeyMap.success) {
-      return new Success(true)
-    } else if (id === mockKeyMap.notExists) {
-      return new Failure(new DraftNotFoundError(''))
-    } else if (id === mockKeyMap.scopeError) {
-      return new Failure(new DraftExcessiveScopeError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
+  saveDraft: jest
+    .fn()
+    .mockImplementation(async (username: string, draft: Draft) => {
+      if (draft.id === mockKeyMap.success) {
+        return new Success(true)
+      } else if (draft.id === mockKeyMap.invalidData) {
+        return new Failure(new DraftInvalidDataError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
+  getDraft: jest
+    .fn()
+    .mockImplementation(async (username: string, id: string) => {
+      if (id === mockKeyMap.success) {
+        return new Success(baseData)
+      } else if (id === mockKeyMap.notExists) {
+        return new Failure(new DraftNotFoundError(''))
+      } else if (id === mockKeyMap.scopeError) {
+        return new Failure(new DraftExcessiveScopeError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
+  deleteDraft: jest
+    .fn()
+    .mockImplementation(async (username: string, id: string) => {
+      if (id === mockKeyMap.success) {
+        return new Success(true)
+      } else if (id === mockKeyMap.notExists) {
+        return new Failure(new DraftNotFoundError(''))
+      } else if (id === mockKeyMap.scopeError) {
+        return new Failure(new DraftExcessiveScopeError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
   setDraftForPreview: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
@@ -80,7 +87,7 @@ describe('GET /api/v1/draft/[id]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you does not have permission', async () => {
@@ -143,7 +150,7 @@ describe('POST /api/v1/draft/[id]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you do not have permission', async () => {
@@ -206,7 +213,7 @@ describe('DELETE /api/v1/draft/[id]', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you do not have permission', async () => {

@@ -37,19 +37,24 @@ const createError = (message?: string): ListArticleReturnProps => {
   return data
 }
 
-const queryAll = async (connection: PoolConnection): Promise<any[]> => {
-  return await connection.query(listAllQuery)
+const queryAll = async (
+  connection: PoolConnection,
+  userId: string,
+): Promise<any[]> => {
+  return await connection.query(listAllQuery, [userId])
 }
 
 const queryWithPage = async (
   connection: PoolConnection,
+  userId: string,
   page: number,
 ): Promise<any[]> => {
-  return await connection.query(listAllWithPageQuery, [page, page])
+  return await connection.query(listAllWithPageQuery, [userId, 10 * (page - 1)])
 }
 
 const queryWithTags = async (
   connection: PoolConnection,
+  userId: string,
   tags: string[],
   page: number,
 ): Promise<any[]> => {
@@ -58,6 +63,7 @@ const queryWithTags = async (
   })
 
   return await connection.query(listAllWithTagsAndPageQuery, [
+    userId,
     distinctTags,
     distinctTags.length,
     10 * (page - 1),
@@ -66,6 +72,7 @@ const queryWithTags = async (
 
 const executeWithPreferQuery = async (
   connection: PoolConnection,
+  userId: string,
   tags?: string[],
   page?: number,
 ): Promise<any[]> => {
@@ -73,25 +80,26 @@ const executeWithPreferQuery = async (
   const haveTags = tags !== undefined && tags.length > 0
 
   if (!havePage && !haveTags) {
-    return await queryAll(connection)
+    return await queryAll(connection, userId)
   } else if (havePage && !haveTags) {
-    return await queryWithPage(connection, page!)
+    return await queryWithPage(connection, userId, page!)
   } else if (havePage && haveTags) {
-    return await queryWithTags(connection, tags!, page!)
+    return await queryWithTags(connection, userId, tags!, page!)
   } else {
     // !havePage && haveTags
     throw new Error('Not implemented yet.')
   }
 }
 
-export const listArticle = async ({
-  tags,
-  page,
-}: ListArticleProps): Promise<ListArticleReturnProps> => {
+export const listArticle = async (
+  userId: string,
+  { tags, page }: ListArticleProps,
+): Promise<ListArticleReturnProps> => {
   return withConnection(async (connection) => {
     try {
       const resultsWithColumnData: any[] = await executeWithPreferQuery(
         connection,
+        userId,
         tags,
         page,
       )

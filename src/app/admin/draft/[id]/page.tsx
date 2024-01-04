@@ -16,7 +16,7 @@ export async function generateMetadata(
   const id: string = params.id
 
   return {
-    title: `${id} - Draft | Silolab Blog`,
+    title: `${id} - Draft | Telepapyrus`,
   }
 }
 

@@ -8,13 +8,15 @@ export const dynamic = 'force-dynamic'
 
 export async function PUT(request: Request) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const data: Draft = await request.json()
-  const result = await getDraftUseCase().setDraftForPreview(data)
+  const username: string = session.user.name
+
+  const result = await getDraftUseCase().setDraftForPreview(username, data)
 
   if (result.isFailure()) {
     return NextResponse.json(

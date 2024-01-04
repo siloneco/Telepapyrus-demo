@@ -8,8 +8,12 @@ import {
 import { PresentationDraft } from './DraftUsesCase'
 
 export interface DraftUseCase {
-  saveDraft(_draft: Draft): Promise<Result<true, DraftInvalidDataError | Error>>
+  saveDraft(
+    _username: string,
+    _draft: Draft,
+  ): Promise<Result<true, DraftInvalidDataError | Error>>
   getDraft(
+    _username: string,
     _id: string,
   ): Promise<
     Result<
@@ -18,13 +22,18 @@ export interface DraftUseCase {
     >
   >
   deleteDraft(
+    _username: string,
     _id: string,
   ): Promise<
     Result<true, DraftNotFoundError | DraftExcessiveScopeError | Error>
   >
 
-  setDraftForPreview(_draft: Draft): Promise<Result<true, Error>>
+  setDraftForPreview(
+    _username: string,
+    _draft: Draft,
+  ): Promise<Result<true, Error>>
   getDraftForPreview(
+    _username: string,
     _id: string,
   ): Promise<Result<PresentationDraft, DraftNotFoundError | Error>>
 }

@@ -2,6 +2,7 @@ import { PublishableDraft } from '@/layers/entity/types'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { createArticle } from '../create/createArticle'
 import { updateArticle } from './updateArticle'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const baseData: PublishableDraft = {
   id: 'id',
@@ -12,6 +13,8 @@ const baseData: PublishableDraft = {
   isPublic: true,
 }
 
+const user = getTestUsername()
+
 const milliSec = () => {
   return new Date().getTime()
 }
@@ -21,10 +24,10 @@ describe('updateArticle', () => {
     const id = `tmp-test-article-update-success-${milliSec()}`
     const title = `edited title ${milliSec()}`
 
-    await createArticle({ ...baseData, id: id })
+    await createArticle(user, { ...baseData, id: id })
 
     expect(
-      await updateArticle({
+      await updateArticle(user, {
         ...baseData,
         id: id,
         title: title,
@@ -38,7 +41,7 @@ describe('updateArticle', () => {
     const id = `tmp-test-article-update-not-exists-${milliSec()}`
 
     expect(
-      await updateArticle({
+      await updateArticle(user, {
         ...baseData,
         id: id,
       }),
@@ -55,7 +58,7 @@ describe('updateArticle', () => {
     const notExistsTag = `tmp-test-update-not-exists-tag-${milliSec()}`
 
     expect(
-      await updateArticle({
+      await updateArticle(user, {
         ...baseData,
         id: id,
         tags: [notExistsTag],

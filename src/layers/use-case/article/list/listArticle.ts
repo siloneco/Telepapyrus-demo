@@ -7,11 +7,12 @@ import {
 import NodeCache from 'node-cache'
 import { formatDate } from '@/lib/utils'
 
-const cache = new NodeCache()
+const cacheMap = new Map<string, NodeCache>()
 const cacheTTL = 60
 
 export const listArticle = async (
   repo: ArticleRepository,
+  userId: string,
   { page, tags }: ListArticleProps,
 ): Promise<Result<PresentationArticleOverview[], Error>> => {
   const cacheKeyObject = {
@@ -20,12 +21,18 @@ export const listArticle = async (
   }
   const cacheKey = JSON.stringify(cacheKeyObject)
 
+  const cache: NodeCache = cacheMap.has(userId)
+    ? cacheMap.get(userId)!
+    : new NodeCache()
+
+  cacheMap.set(userId, cache)
+
   const cached = cache.get<PresentationArticleOverview[]>(cacheKey)
   if (cached) {
     return new Success(cached)
   }
 
-  const result = await repo.listArticle({ page, tags })
+  const result = await repo.listArticle(userId, { page, tags })
   if (result.success) {
     const resultData: PresentationArticleOverview[] = result.data!.map(
       (article) => ({
@@ -46,6 +53,6 @@ export const listArticle = async (
   )
 }
 
-export const flushListCache = async (_: string) => {
-  cache.flushAll()
+export const flushListCache = async (userId: string, _id: string) => {
+  cacheMap.delete(userId)
 }

@@ -8,13 +8,14 @@ const cacheKey = 'key'
 
 export const listTags = async (
   repo: TagRepository,
+  userId: string,
 ): Promise<Result<string[], Error>> => {
   const cached = cache.get<string[]>(cacheKey)
   if (cached) {
     return new Success(cached)
   }
 
-  const result = await repo.listTags()
+  const result = await repo.listTags(userId)
   if (result.success) {
     const data = result.data!
     cache.set(cacheKey, data, cacheTTL)

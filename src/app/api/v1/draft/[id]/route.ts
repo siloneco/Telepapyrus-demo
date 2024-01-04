@@ -19,14 +19,15 @@ type Props = {
 
 export async function GET(request: Request, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const username: string = session.user.name
   const { id } = params
 
-  const result = await getDraftUseCase().getDraft(id)
+  const result = await getDraftUseCase().getDraft(username, id)
 
   if (result.isFailure()) {
     if (result.error instanceof DraftNotFoundError) {
@@ -46,17 +47,18 @@ export async function GET(request: Request, { params }: Props) {
 
 export async function POST(request: NextRequest, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { id } = params
+  const username: string = session.user.name
   const data: Draft = await request.json()
 
   data.id = id
 
-  const result = await getDraftUseCase().saveDraft(data)
+  const result = await getDraftUseCase().saveDraft(username, data)
 
   if (result.isFailure()) {
     if (result.error instanceof DraftInvalidDataError) {
@@ -74,14 +76,15 @@ export async function POST(request: NextRequest, { params }: Props) {
 
 export async function DELETE(request: NextRequest, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { id } = params
+  const username: string = session.user.name
 
-  const result = await getDraftUseCase().deleteDraft(id)
+  const result = await getDraftUseCase().deleteDraft(username, id)
 
   if (result.isFailure()) {
     if (result.error instanceof DraftNotFoundError) {

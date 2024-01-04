@@ -15,12 +15,18 @@ import {
 } from './ram/draft/setPreview/setDraftForPreview'
 
 export interface DraftRepository {
-  saveDraft(_draft: Draft): Promise<SaveDraftReturnProps>
-  getDraft(_id: string): Promise<GetDraftReturnProps>
-  deleteDraft(_id: string): Promise<DeleteDraftReturnProps>
+  saveDraft(_user: string, _draft: Draft): Promise<SaveDraftReturnProps>
+  getDraft(_user: string, _id: string): Promise<GetDraftReturnProps>
+  deleteDraft(_user: string, _id: string): Promise<DeleteDraftReturnProps>
 
-  setDraftForPreview(_draft: Draft): Promise<SetDraftForPreviewReturnProps>
-  getDraftForPreview(_id: string): Promise<GetDraftForPreviewReturnProps>
+  setDraftForPreview(
+    _user: string,
+    _draft: Draft,
+  ): Promise<SetDraftForPreviewReturnProps>
+  getDraftForPreview(
+    _user: string,
+    _id: string,
+  ): Promise<GetDraftForPreviewReturnProps>
 }
 
 export const getRepository = (): DraftRepository => {

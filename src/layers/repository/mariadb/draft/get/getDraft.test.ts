@@ -4,8 +4,11 @@ import { Draft } from '@/layers/entity/types'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { getDraft } from './getDraft'
 import { getDraftQuery as dummyDraftQuery } from './query'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const { getDraftQuery } = jest.requireActual('./query')
+
+const user = getTestUsername()
 
 const milliSec = () => {
   return new Date().getTime()
@@ -24,7 +27,7 @@ describe('getDraft', () => {
       content: 'content',
     }
 
-    const fetched = (await getDraft(draft.id)).data
+    const fetched = (await getDraft(user, draft.id)).data
 
     expect(fetched).toMatchObject(draft)
   })
@@ -32,7 +35,7 @@ describe('getDraft', () => {
   it('rejects when the draft does not exists', async () => {
     const id = `tmp-test-draft-get-fail-id-not-exists-${milliSec()}`
 
-    expect(await getDraft(id)).toMatchObject({
+    expect(await getDraft(user, id)).toMatchObject({
       success: false,
       error: {
         id: 'not-exists',
@@ -46,7 +49,7 @@ describe('getDraft', () => {
 
     const id = `tmp-test-draft-get-fail-too-many-${milliSec()}}`
 
-    expect(await getDraft(id)).toMatchObject({
+    expect(await getDraft(user, id)).toMatchObject({
       success: false,
       error: {
         id: 'too-many-rows-selected',

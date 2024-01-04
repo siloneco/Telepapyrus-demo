@@ -3,9 +3,9 @@ import { DeleteTagReturnProps, deleteTag } from './mariadb/tag/delete/deleteTag'
 import { ListTagsReturnProps, listTags } from './mariadb/tag/list/listTag'
 
 export interface TagRepository {
-  createTag(_tag: string): Promise<CreateTagReturnProps>
-  deleteTag(_tag: string): Promise<DeleteTagReturnProps>
-  listTags(): Promise<ListTagsReturnProps>
+  createTag(_user: string, _tag: string): Promise<CreateTagReturnProps>
+  deleteTag(_user: string, _tag: string): Promise<DeleteTagReturnProps>
+  listTags(_user: string): Promise<ListTagsReturnProps>
 }
 
 export const getRepository = (): TagRepository => {

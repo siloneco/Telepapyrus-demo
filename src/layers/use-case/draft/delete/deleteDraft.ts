@@ -4,11 +4,12 @@ import { DraftExcessiveScopeError, DraftNotFoundError } from '../errors'
 
 export const deleteDraft = async (
   repo: DraftRepository,
+  userId: string,
   id: string,
 ): Promise<
   Result<true, DraftNotFoundError | DraftExcessiveScopeError | Error>
 > => {
-  const result = await repo.deleteDraft(id)
+  const result = await repo.deleteDraft(userId, id)
   if (result.success) {
     return new Success(true)
   }

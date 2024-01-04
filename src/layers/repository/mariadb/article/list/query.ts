@@ -7,7 +7,12 @@ SELECT
   articles.last_updated,
   tags.tags
 FROM
-  articles LEFT JOIN
+  (
+    SELECT
+      *
+    FROM articles
+    WHERE user = ?
+  ) AS articles LEFT JOIN
     (
       SELECT
         id,
@@ -30,28 +35,16 @@ FROM
   (
     SELECT
       *
-	  FROM articles
-    WHERE date <= (
-        SELECT date FROM pages WHERE page = ?
-      )
+    FROM articles
+    WHERE user = ?
     ORDER BY date DESC
-    LIMIT 10
-  )  as articles LEFT JOIN
+    LIMIT 10 OFFSET ?
+  ) AS articles LEFT JOIN
     (
       SELECT
         id,
         GROUP_CONCAT(DISTINCT tag SEPARATOR ',') AS tags
   	  FROM tags
-      WHERE id IN
-        (
-          SELECT
-            id
-          FROM articles
-          WHERE date <=
-            (
-              SELECT date FROM pages WHERE page = ?
-            )
-        )
       GROUP BY id
 	)
   AS tags ON tags.id = articles.id;
@@ -75,13 +68,17 @@ FROM
       WHERE id IN
       (
         SELECT
-	      id
+	        id
         FROM tags
-        WHERE tag IN (?)
+        WHERE
+          user = ? AND
+          tag IN (?)
         GROUP BY id
         HAVING COUNT(DISTINCT tag) = ?
       )
       GROUP BY id
     ) as tags ON tags.id = articles.id
-ORDER BY date DESC LIMIT 10 OFFSET ?;
+ORDER BY date DESC
+LIMIT 10
+OFFSET ?;
 `

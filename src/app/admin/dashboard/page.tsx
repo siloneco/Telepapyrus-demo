@@ -6,13 +6,18 @@ import {
   getArticleUseCase,
 } from '@/layers/use-case/article/ArticleUseCase'
 import { Metadata } from 'next'
+import { getServerSession } from 'next-auth'
+import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { notFound } from 'next/navigation'
 
 export const metadata: Metadata = {
-  title: 'Dashboard | Silolab Blog',
+  title: 'Dashboard | Telepapyrus',
 }
 
-async function getArticleOverview(): Promise<PresentationArticleOverview[]> {
-  const result = await getArticleUseCase().listArticle({})
+async function getArticleOverview(
+  username: string,
+): Promise<PresentationArticleOverview[]> {
+  const result = await getArticleUseCase().listArticle(username, { page: 1 })
 
   if (result.isSuccess()) {
     return result.value
@@ -24,7 +29,14 @@ async function getArticleOverview(): Promise<PresentationArticleOverview[]> {
 }
 
 export default async function Page() {
-  const data: PresentationArticleOverview[] = await getArticleOverview()
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
+    notFound()
+  }
+
+  const username: string = session.user?.name
+
+  const data: PresentationArticleOverview[] = await getArticleOverview(username)
 
   return (
     <div className="max-w-5xl mx-auto mt-5 mb-10">

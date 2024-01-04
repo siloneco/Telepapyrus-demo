@@ -5,11 +5,12 @@ import { ArticleRepository } from '@/layers/repository/ArticleRepository'
 
 export const createArticle = async (
   repo: ArticleRepository,
+  userId: string,
   draft: PublishableDraft,
 ): Promise<
   Result<true, ArticleAlreadyExistsError | ArticleInvalidDataError | Error>
 > => {
-  const result = await repo.createArticle(draft)
+  const result = await repo.createArticle(userId, draft)
   if (result.success) {
     return new Success(true)
   }

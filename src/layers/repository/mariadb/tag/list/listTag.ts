@@ -23,10 +23,12 @@ const createError = (error: any): ListTagsReturnProps => {
   return data
 }
 
-export const listTags = async (): Promise<ListTagsReturnProps> => {
+export const listTags = async (
+  userId: string,
+): Promise<ListTagsReturnProps> => {
   return await withConnection(async (connection: PoolConnection) => {
     try {
-      const result: any[] = await connection.query(listTagsSQL)
+      const result: any[] = await connection.query(listTagsSQL, [userId])
 
       const selectResults: [{ tag: string }] = result[0]
 

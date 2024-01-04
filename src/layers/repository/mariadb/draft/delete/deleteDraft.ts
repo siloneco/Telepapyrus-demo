@@ -37,6 +37,7 @@ const createError = (
 }
 
 export const deleteDraft = async (
+  userId: string,
   id: string,
 ): Promise<DeleteDraftReturnProps> => {
   return await withConnection(async (connection: PoolConnection) => {
@@ -44,6 +45,7 @@ export const deleteDraft = async (
       await connection.beginTransaction()
 
       const deleteResult: any[] = await connection.query(getDeleteDraftSQL(), [
+        userId,
         id,
       ])
 

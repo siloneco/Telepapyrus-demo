@@ -23,14 +23,15 @@ type RequestJson = PublishableDraft & { update?: boolean }
 
 export async function GET(request: Request, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { id } = params
+  const username: string = session.user.name
 
-  const result = await getArticleUseCase().getArticle(id)
+  const result = await getArticleUseCase().getArticle(username, id)
 
   if (result.isFailure()) {
     const error = result.error
@@ -54,16 +55,18 @@ export async function GET(request: Request, { params }: Props) {
 
 export async function POST(request: Request, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
+    console.log(session)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const username: string = session.user.name
   const data: RequestJson = await request.json()
   data.id = params.id
 
   if (data.update === undefined || data.update === false) {
-    const result = await getArticleUseCase().createArticle(data)
+    const result = await getArticleUseCase().createArticle(username, data)
 
     if (result.isFailure()) {
       const error = result.error
@@ -81,11 +84,11 @@ export async function POST(request: Request, { params }: Props) {
     }
 
     // Delete draft
-    const _ignoreResult = await getDraftUseCase().deleteDraft(data.id)
+    const _ignoreResult = await getDraftUseCase().deleteDraft(username, data.id)
 
     return NextResponse.json({ status: 'OK' })
   } else {
-    const result = await getArticleUseCase().updateArticle(data)
+    const result = await getArticleUseCase().updateArticle(username, data)
 
     if (result.isFailure()) {
       const error = result.error
@@ -103,7 +106,7 @@ export async function POST(request: Request, { params }: Props) {
     }
 
     // Delete draft
-    const _ignoreResult = await getDraftUseCase().deleteDraft(data.id)
+    const _ignoreResult = await getDraftUseCase().deleteDraft(username, data.id)
 
     return NextResponse.json({ status: 'OK' })
   }
@@ -111,14 +114,15 @@ export async function POST(request: Request, { params }: Props) {
 
 export async function DELETE(request: Request, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { id } = params
+  const username: string = session.user.name
 
-  const result = await getArticleUseCase().deleteArticle(id)
+  const result = await getArticleUseCase().deleteArticle(username, id)
 
   if (result.isFailure()) {
     const error = result.error

@@ -32,6 +32,10 @@ const getConnectionLimit = (): number => {
   return Number(raw)
 }
 
+export const getTestUsername = (): string => {
+  return 'test-user'
+}
+
 const validateConnectionData = async (
   connectionData: DatabaseConnectionData,
 ): Promise<void> => {

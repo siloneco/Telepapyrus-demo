@@ -39,12 +39,13 @@ const createError = (error: any): UpdateArticleReturnProps => {
 }
 
 export const updateArticle = async (
+  userId: string,
   data: PublishableDraft,
 ): Promise<UpdateArticleReturnProps> => {
   const tagInsertValues: string[][] = []
   if (data.tags) {
     data.tags.forEach((tag) => {
-      tagInsertValues.push([data.id, tag])
+      tagInsertValues.push([userId, data.id, tag])
     })
   }
 
@@ -56,6 +57,7 @@ export const updateArticle = async (
         data.title,
         data.description,
         data.content,
+        userId,
         data.id,
       ])
 
@@ -66,7 +68,7 @@ export const updateArticle = async (
         return notExistsError
       }
 
-      await connection.query(deleteTagsSQL(), [data.id])
+      await connection.query(deleteTagsSQL(), [userId, data.id])
       if (tagInsertValues.length > 0) {
         await connection.query(insertTagsSQL(), [tagInsertValues])
       }

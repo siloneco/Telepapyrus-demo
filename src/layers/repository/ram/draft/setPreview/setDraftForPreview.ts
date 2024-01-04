@@ -15,10 +15,13 @@ const createUnknownError = (msg?: string): SetDraftForPreviewReturnProps => {
 }
 
 export const setDraftForPreview = async (
+  userId: string,
   draft: Draft,
 ): Promise<SetDraftForPreviewReturnProps> => {
   try {
-    const result: boolean = setData(draft.id, draft)
+    const key = JSON.stringify({ userId, id: draft.id })
+    const result: boolean = setData(key, draft)
+
     if (result === false) {
       return createUnknownError()
     }

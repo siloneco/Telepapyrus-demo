@@ -1,7 +1,8 @@
 export const countAllQuery = `
 SELECT
   COUNT(*) AS count
-FROM articles;
+FROM articles
+WHERE user = ?;
 `
 
 export const countWithTagsQuery = `
@@ -11,7 +12,9 @@ FROM (
   SELECT
 	  id
 	FROM tags
-    WHERE tag IN (?)
+    WHERE
+      user = ? AND
+      tag IN (?)
     GROUP BY id
     HAVING COUNT(DISTINCT tag) = ?
   ) AS a;

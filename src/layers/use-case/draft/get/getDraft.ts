@@ -14,6 +14,7 @@ const convertToPresentationDraft = (draft: Draft) => {
 
 export const getDraft = async (
   repo: DraftRepository,
+  userId: string,
   id: string,
 ): Promise<
   Result<
@@ -21,7 +22,7 @@ export const getDraft = async (
     DraftNotFoundError | DraftExcessiveScopeError | Error
   >
 > => {
-  const result = await repo.getDraft(id)
+  const result = await repo.getDraft(userId, id)
   if (result.success) {
     const presentationDraft = convertToPresentationDraft(result.data!)
     return new Success(presentationDraft)

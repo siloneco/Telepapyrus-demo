@@ -1,12 +1,15 @@
 import { Draft } from '@/layers/entity/types'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { saveDraft } from './saveDraft'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const baseData: Draft = {
   id: 'id',
   title: 'title',
   content: 'content',
 }
+
+const user = getTestUsername()
 
 const milliSec = () => {
   return new Date().getTime()
@@ -17,7 +20,7 @@ describe('saveDraft', () => {
     const id = `tmp-test-draft-create-success-${milliSec()}`
 
     expect(
-      await saveDraft({
+      await saveDraft(user, {
         ...baseData,
         id: id,
       }),
@@ -30,7 +33,7 @@ describe('saveDraft', () => {
     const id = `test-draft-create-success-update`
 
     expect(
-      await saveDraft({
+      await saveDraft(user, {
         ...baseData,
         id: id,
         title: `changed-title-${milliSec()}`,
@@ -45,7 +48,7 @@ describe('saveDraft', () => {
     const id = `tmp-test-draft-create-fail-with-id-too-long-${longString}-${milliSec()}`
 
     expect(
-      await saveDraft({
+      await saveDraft(user, {
         ...baseData,
         id: id,
       }),

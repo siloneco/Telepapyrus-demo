@@ -5,8 +5,11 @@ import getConnectionPool from '../../connection/getConnectionPool'
 import { createArticle } from '../create/createArticle'
 import { deleteArticle } from './deleteArticle'
 import { deleteArticleQuery as dummyDeleteArticleQuery } from './query'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const { deleteArticleQuery } = jest.requireActual('./query')
+
+const user = getTestUsername()
 
 const milliSec = () => {
   return new Date().getTime()
@@ -30,9 +33,9 @@ describe('deleteArticle', () => {
       isPublic: true,
     }
 
-    await createArticle(createData)
+    await createArticle(user, createData)
 
-    expect(await deleteArticle(id)).toMatchObject({
+    expect(await deleteArticle(user, id)).toMatchObject({
       success: true,
     })
   })
@@ -40,7 +43,7 @@ describe('deleteArticle', () => {
   it('rejects when the article is not exists', async () => {
     const id = `tmp-test-article-delete-fail-id-not-exists-${milliSec()}`
 
-    expect(await deleteArticle(id)).toMatchObject({
+    expect(await deleteArticle(user, id)).toMatchObject({
       success: false,
       error: {
         id: 'not-exists',
@@ -55,7 +58,7 @@ describe('deleteArticle', () => {
       `DELETE FROM articles WHERE id LIKE '${baseId}-%';`,
     )
 
-    expect(await deleteArticle(baseId)).toMatchObject({
+    expect(await deleteArticle(user, baseId)).toMatchObject({
       success: false,
       error: {
         id: 'too-many-rows-affected',

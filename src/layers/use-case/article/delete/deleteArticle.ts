@@ -4,11 +4,12 @@ import { ArticleRepository } from '@/layers/repository/ArticleRepository'
 
 export const deleteArticle = async (
   repo: ArticleRepository,
+  userId: string,
   id: string,
 ): Promise<
   Result<true, ArticleNotFoundError | ArticleExcessiveScopeError | Error>
 > => {
-  const result = await repo.deleteArticle(id)
+  const result = await repo.deleteArticle(userId, id)
   if (result.success) {
     return new Success(true)
   }

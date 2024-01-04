@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth'
 import { getDraftUseCase } from '@/layers/use-case/draft/DraftUsesCase'
 import { DraftUseCase } from '@/layers/use-case/draft/interface'
 import { NextRequest } from 'next/server'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const baseData: Draft = {
   id: 'id',
@@ -30,13 +31,15 @@ const draftUseCaseMock: DraftUseCase = {
   deleteDraft: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
-  setDraftForPreview: jest.fn().mockImplementation(async (draft: Draft) => {
-    if (draft.id === mockKeyMap.success) {
-      return new Success(true)
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
+  setDraftForPreview: jest
+    .fn()
+    .mockImplementation(async (username: string, draft: Draft) => {
+      if (draft.id === mockKeyMap.success) {
+        return new Success(true)
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
   getDraftForPreview: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
@@ -53,7 +56,7 @@ describe('PUT /api/v1/draft/preview', () => {
     getServerSessionMock
       .mockClear()
       .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
-      .mockReturnValue(Promise.resolve({})) // Access Granted
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
   })
 
   it('responds 401 (Unauthorized) when you does not have permission', async () => {

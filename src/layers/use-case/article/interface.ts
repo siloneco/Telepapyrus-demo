@@ -15,11 +15,13 @@ import { Result } from '@/lib/utils/Result'
 
 export interface ArticleUseCase {
   createArticle(
+    _username: string,
     _draft: PublishableDraft,
   ): Promise<
     Result<true, ArticleAlreadyExistsError | ArticleInvalidDataError | Error>
   >
   getArticle(
+    _username: string,
     _id: string,
   ): Promise<
     Result<
@@ -28,17 +30,20 @@ export interface ArticleUseCase {
     >
   >
   updateArticle(
+    _username: string,
     _draft: PublishableDraft,
   ): Promise<
     Result<true, ArticleInvalidDataError | ArticleNotFoundError | Error>
   >
   deleteArticle(
+    _username: string,
     _id: string,
   ): Promise<
     Result<true, ArticleNotFoundError | ArticleExcessiveScopeError | Error>
   >
 
   countArticle(
+    _username: string,
     _tags?: string[],
   ): Promise<
     Result<
@@ -47,6 +52,7 @@ export interface ArticleUseCase {
     >
   >
   listArticle(
+    _username: string,
     _data: ListArticleProps,
   ): Promise<Result<PresentationArticleOverview[], Error>>
 }

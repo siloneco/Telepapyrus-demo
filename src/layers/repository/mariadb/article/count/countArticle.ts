@@ -30,12 +30,16 @@ const createError = (
   return data
 }
 
-const queryAll = async (connection: PoolConnection): Promise<any[]> => {
-  return await connection.query(countAllQuery)
+const queryAll = async (
+  connection: PoolConnection,
+  userId: string,
+): Promise<any[]> => {
+  return await connection.query(countAllQuery, [userId])
 }
 
 const queryWithTags = async (
   connection: PoolConnection,
+  userId: string,
   tags: string[],
 ): Promise<any[]> => {
   const distinctTags = tags.filter((tag, index, self) => {
@@ -43,6 +47,7 @@ const queryWithTags = async (
   })
 
   return await connection.query(countWithTagsQuery, [
+    userId,
     distinctTags,
     distinctTags.length,
   ])
@@ -50,24 +55,27 @@ const queryWithTags = async (
 
 const executeWithPreferQuery = async (
   connection: PoolConnection,
+  userId: string,
   tags?: string[],
 ): Promise<any[]> => {
   const haveTags = tags !== undefined && tags.length > 0
 
   if (!haveTags) {
-    return await queryAll(connection)
+    return await queryAll(connection, userId)
   } else {
-    return await queryWithTags(connection, tags!)
+    return await queryWithTags(connection, userId, tags!)
   }
 }
 
 export const countArticle = async (
+  userId: string,
   tags?: string[],
 ): Promise<CountArticleReturnProps> => {
   return withConnection(async (connection) => {
     try {
       const resultsWithColumnData: any[] = await executeWithPreferQuery(
         connection,
+        userId,
         tags,
       )
 

@@ -31,6 +31,7 @@ const createError = (error: any): SaveDraftReturnProps => {
 }
 
 export const saveDraft = async (
+  userId: string,
   draft: Draft,
 ): Promise<SaveDraftReturnProps> => {
   return await withConnection(async (connection: PoolConnection) => {
@@ -38,6 +39,7 @@ export const saveDraft = async (
       await connection.beginTransaction()
 
       await connection.query(insertDraftSQL, [
+        userId,
         draft.id,
         draft.title,
         draft.content,

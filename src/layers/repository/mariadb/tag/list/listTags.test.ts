@@ -1,9 +1,12 @@
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { listTags } from './listTag'
 
+const user = getTestUsername()
+
 describe('listTags', () => {
   it('fetches tag list correctly', async () => {
-    const result = await listTags()
+    const result = await listTags(user)
 
     expect(result).toMatchObject({
       success: true,

@@ -4,11 +4,12 @@ import { TagRepository } from '@/layers/repository/TagRepository'
 
 export const createTag = async (
   repo: TagRepository,
+  userId: string,
   tag: string,
 ): Promise<
   Result<true, TagAlreadyExistsError | TagInvalidDataError | Error>
 > => {
-  const result = await repo.createTag(tag)
+  const result = await repo.createTag(userId, tag)
   if (result.success) {
     return new Success(true)
   }

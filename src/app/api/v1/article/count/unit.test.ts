@@ -1,4 +1,5 @@
 jest.mock('@/layers/use-case/article/ArticleUseCase')
+jest.mock('next-auth')
 
 import { NextRequest, NextResponse } from 'next/server'
 import { GET } from './route'
@@ -9,6 +10,8 @@ import {
   ArticleExcessiveScopeError,
   ArticleUnexpectedReturnValueError,
 } from '@/layers/use-case/article/errors'
+import { getServerSession } from 'next-auth'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const mockKeyMap = {
   success: 'success',
@@ -30,19 +33,21 @@ const articleUseCaseMock: ArticleUseCase = {
   deleteArticle: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
-  countArticle: jest.fn().mockImplementation(async (tags?: string[]) => {
-    if (tags === undefined) {
-      return new Success(1)
-    } else if (tags[0] === mockKeyMap.success) {
-      return new Success(2)
-    } else if (tags[0] === mockKeyMap.scopeError) {
-      return new Failure(new ArticleExcessiveScopeError(''))
-    } else if (tags[0] === mockKeyMap.invalidReturnValueError) {
-      return new Failure(new ArticleUnexpectedReturnValueError(''))
-    } else {
-      return new Failure(new Error(''))
-    }
-  }),
+  countArticle: jest
+    .fn()
+    .mockImplementation(async (_userId: string, tags?: string[]) => {
+      if (tags === undefined) {
+        return new Success(1)
+      } else if (tags[0] === mockKeyMap.success) {
+        return new Success(2)
+      } else if (tags[0] === mockKeyMap.scopeError) {
+        return new Failure(new ArticleExcessiveScopeError(''))
+      } else if (tags[0] === mockKeyMap.invalidReturnValueError) {
+        return new Failure(new ArticleUnexpectedReturnValueError(''))
+      } else {
+        return new Failure(new Error(''))
+      }
+    }),
   listArticle: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
@@ -54,6 +59,22 @@ beforeAll(() => {
 })
 
 describe('GET /api/v1/article/count', () => {
+  beforeAll(() => {
+    const getServerSessionMock = getServerSession as jest.Mock
+    getServerSessionMock
+      .mockClear()
+      .mockReturnValueOnce(Promise.resolve(null)) // Access Denied
+      .mockReturnValue(Promise.resolve({ user: { name: getTestUsername() } })) // Access Granted
+  })
+
+  it('responds 401 (Unauthorized) when you does not have permission', async () => {
+    const req = new NextRequest('http://localhost/')
+
+    const data: NextResponse<any> = await GET(req)
+
+    expect(data.status).toBe(401)
+  })
+
   it('responds 200 (OK) and correct data', async () => {
     const req = new NextRequest('http://localhost/')
 
@@ -67,7 +88,7 @@ describe('GET /api/v1/article/count', () => {
 
     const callLength = 1
     expect(countArticleMock.mock.calls).toHaveLength(callLength)
-    expect(countArticleMock.mock.calls[callLength - 1][0]).toEqual(undefined)
+    expect(countArticleMock.mock.calls[callLength - 1][1]).toEqual(undefined)
   })
 
   it('responds 200 (OK) and correct data when tags specified', async () => {
@@ -85,7 +106,7 @@ describe('GET /api/v1/article/count', () => {
 
     const callLength = 2
     expect(countArticleMock.mock.calls).toHaveLength(callLength)
-    expect(countArticleMock.mock.calls[callLength - 1][0]).toEqual([
+    expect(countArticleMock.mock.calls[callLength - 1][1]).toEqual([
       mockKeyMap.success,
     ])
   })

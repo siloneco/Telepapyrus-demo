@@ -1,9 +1,12 @@
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { countArticle } from './countArticle'
 
+const user = getTestUsername()
+
 describe('countArticle', () => {
   it('counts articles correctly', async () => {
-    const returnedValue = await countArticle()
+    const returnedValue = await countArticle(user)
 
     expect(returnedValue).toMatchObject({
       success: true,
@@ -16,7 +19,7 @@ describe('countArticle', () => {
   })
 
   it('counts articles correctly when a tag specified', async () => {
-    const returnedValue = await countArticle([
+    const returnedValue = await countArticle(user, [
       'test-article-count-success-specific-tag-1',
     ])
 
@@ -31,7 +34,7 @@ describe('countArticle', () => {
   })
 
   it('counts articles correctly when multiple tags specified', async () => {
-    const returnedValue = await countArticle([
+    const returnedValue = await countArticle(user, [
       'test-article-count-success-specific-tag-1',
       'test-article-count-success-specific-tag-2',
     ])
@@ -47,7 +50,7 @@ describe('countArticle', () => {
   })
 
   it('returns 0 when tags not existing specified', async () => {
-    const returnedValue = await countArticle([
+    const returnedValue = await countArticle(user, [
       'test-article-count-success-not-exists',
     ])
 

@@ -1,6 +1,9 @@
 import { PublishableDraft } from '@/layers/entity/types'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { createArticle } from './createArticle'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
+
+const user = getTestUsername()
 
 const baseData: PublishableDraft = {
   id: 'id',
@@ -20,7 +23,7 @@ describe('createArticle', () => {
     const id = `tmp-test-article-create-success-${milliSec()}`
 
     expect(
-      await createArticle({
+      await createArticle(user, {
         ...baseData,
         id: id,
       }),
@@ -34,7 +37,7 @@ describe('createArticle', () => {
     const id = `tmp-test-article-create-fail-with-id-too-long-${longString}-${milliSec()}`
 
     expect(
-      await createArticle({
+      await createArticle(user, {
         ...baseData,
         id: id,
       }),
@@ -50,7 +53,7 @@ describe('createArticle', () => {
     const id = `tmp-test-article-create-fail-invalid-tag-${milliSec()}`
 
     expect(
-      await createArticle({
+      await createArticle(user, {
         ...baseData,
         id: id,
         tags: [id],
@@ -67,7 +70,7 @@ describe('createArticle', () => {
     const id = 'test-article-create-fail-already-exists'
 
     expect(
-      await createArticle({
+      await createArticle(user, {
         ...baseData,
         id: id,
       }),

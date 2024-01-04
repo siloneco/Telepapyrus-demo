@@ -20,10 +20,13 @@ const createError = (
 }
 
 export const getDraftForPreview = async (
+  userId: string,
   id: string,
 ): Promise<GetDraftForPreviewReturnProps> => {
   try {
-    const result: Draft | null = getData(id)
+    const key = JSON.stringify({ userId, id })
+    const result: Draft | null = getData(key)
+
     if (result === null) {
       return createError('not-exists')
     }

@@ -4,9 +4,10 @@ import { TagExcessiveScopeError, TagNotFoundError } from '../errors'
 
 export const deleteTag = async (
   repo: TagRepository,
+  userId: string,
   tag: string,
 ): Promise<Result<true, TagNotFoundError | TagExcessiveScopeError | Error>> => {
-  const result = await repo.deleteTag(tag)
+  const result = await repo.deleteTag(userId, tag)
   if (result.success) {
     return new Success(true)
   }

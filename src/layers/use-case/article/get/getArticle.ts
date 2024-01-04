@@ -6,7 +6,7 @@ import { formatDate } from '@/lib/utils'
 import { FlushCacheFunction, PresentationArticle } from '../ArticleUseCase'
 import NodeCache from 'node-cache'
 
-const cache = new NodeCache()
+const cacheMap = new Map<string, NodeCache>()
 const cacheTTL = 60
 
 const convertToPresentationArticle = (article: Article) => {
@@ -23,6 +23,7 @@ const convertToPresentationArticle = (article: Article) => {
 
 export const getArticle = async (
   repo: ArticleRepository,
+  userId: string,
   id: string,
 ): Promise<
   Result<
@@ -32,12 +33,18 @@ export const getArticle = async (
 > => {
   const cacheKey = id
 
+  const cache: NodeCache = cacheMap.has(userId)
+    ? cacheMap.get(userId)!
+    : new NodeCache()
+
+  cacheMap.set(userId, cache)
+
   const cached = cache.get<PresentationArticle>(cacheKey)
   if (cached) {
     return new Success(cached)
   }
 
-  const result = await repo.getArticle(id)
+  const result = await repo.getArticle(userId, id)
   if (result.success) {
     const presentationArticle = convertToPresentationArticle(result.data!)
     cache.set(cacheKey, presentationArticle, cacheTTL)
@@ -59,6 +66,11 @@ export const getArticle = async (
   )
 }
 
-export const flushGetCache: FlushCacheFunction = async (id: string) => {
-  cache.del(id)
+export const flushGetCache: FlushCacheFunction = async (
+  userId: string,
+  id: string,
+) => {
+  if (cacheMap.has(userId)) {
+    cacheMap.get(userId)!.del(id)
+  }
 }

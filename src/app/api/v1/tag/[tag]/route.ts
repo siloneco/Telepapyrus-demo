@@ -19,14 +19,15 @@ type Props = {
 
 export async function POST(request: NextRequest, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { tag } = params
+  const username: string = session.user.name
 
-  const result = await getTagUseCase().createTag(tag)
+  const result = await getTagUseCase().createTag(username, tag)
 
   if (result.isFailure()) {
     const error = result.error
@@ -52,14 +53,15 @@ export async function POST(request: NextRequest, { params }: Props) {
 
 export async function DELETE(request: NextRequest, { params }: Props) {
   // Require authentication
-  const session = await getServerSession(authOptions)
-  if (!session) {
+  const session: any = await getServerSession(authOptions)
+  if (!session || session.user?.name === undefined) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { tag } = params
+  const username: string = session.user.name
 
-  const result = await getTagUseCase().deleteTag(tag)
+  const result = await getTagUseCase().deleteTag(username, tag)
 
   if (result.isFailure()) {
     const error = result.error

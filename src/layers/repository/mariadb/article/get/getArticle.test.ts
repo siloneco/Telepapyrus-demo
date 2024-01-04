@@ -4,8 +4,11 @@ import { PublishableDraft } from '@/layers/entity/types'
 import getConnectionPool from '../../connection/getConnectionPool'
 import { getArticle } from './getArticle'
 import { getArticleQuery as dummyArticleQuery } from './query'
+import { getTestUsername } from '@/layers/constant/databaseConstants'
 
 const { getArticleQuery } = jest.requireActual('./query')
+
+const user = getTestUsername()
 
 const milliSec = () => {
   return new Date().getTime()
@@ -27,7 +30,7 @@ describe('getArticle', () => {
       isPublic: true,
     }
 
-    const fetched = (await getArticle(draft.id)).data
+    const fetched = (await getArticle(user, draft.id)).data
 
     expect(fetched).toMatchObject(draft)
     expect(fetched?.date).toBeInstanceOf(Date)
@@ -37,7 +40,7 @@ describe('getArticle', () => {
   it('rejects when the article does not exists', async () => {
     const id = `tmp-test-article-get-fail-id-not-exists-${milliSec()}`
 
-    expect(await getArticle(id)).toMatchObject({
+    expect(await getArticle(user, id)).toMatchObject({
       success: false,
       error: {
         id: 'not-exists',
@@ -51,7 +54,7 @@ describe('getArticle', () => {
 
     const id = `tmp-test-article-get-fail-too-many-${milliSec()}}`
 
-    expect(await getArticle(id)).toMatchObject({
+    expect(await getArticle(user, id)).toMatchObject({
       success: false,
       error: {
         id: 'too-many-rows-selected',
