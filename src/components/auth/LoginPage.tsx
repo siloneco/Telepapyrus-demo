@@ -21,42 +21,44 @@ export default function SigninPage() {
   }
 
   return (
-    <div className="max-w-3xl my-40 mx-3 md:mx-auto">
-      <h2 className="flex justify-center text-4xl mb-6">
-        Telepapyrusデモサイト
-      </h2>
-      <p className="flex justify-center">
-        記事の投稿や閲覧など、全機能をログイン後に行えます
-      </p>
-      <div className="w-fit mx-auto mt-4">
-        <Button
-          variant={'secondary'}
-          className="h-20 rounded-xl px-12"
-          onClick={onClick}
-          disabled={loading}
-        >
-          {loading && <Loader2 className="animate-spin" size={36} />}
-          {!loading && <FaGithub className="text-4xl" />}
-          <p className="text-xl ml-4">GitHubでログイン</p>
-        </Button>
-      </div>
-      <p className="mt-4 flex justify-center text-gray-400">
-        ログインはユーザーを識別するために利用され、個人情報を収集することはありません
-      </p>
-      <p className="flex justify-center text-gray-400">
-        ユーザーの識別はGitHubのユーザー名を用いて行われます
-      </p>
-      <div className="w-fit mx-auto mt-4">
-        <Button variant={'outline'}>
-          <FaGithub className="text-xl mr-3" />
-          <a
-            href="https://github.com/siloneco/Telepapyrus"
-            target="_blank"
-            rel="noopener"
+    <div className="h-[calc(100vh-130px)] flex items-center">
+      <div className="max-w-3xl mx-3 md:mx-auto">
+        <h2 className="flex justify-center text-4xl mb-6">
+          Telepapyrusデモサイト
+        </h2>
+        <p className="flex justify-center">
+          記事の投稿や閲覧など、全機能をログイン後に行えます
+        </p>
+        <div className="w-fit mx-auto mt-4">
+          <Button
+            variant={'secondary'}
+            className="h-20 rounded-xl px-12"
+            onClick={onClick}
+            disabled={loading}
           >
-            GitHub Repository
-          </a>
-        </Button>
+            {loading && <Loader2 className="animate-spin" size={36} />}
+            {!loading && <FaGithub className="text-4xl" />}
+            <p className="text-xl ml-4">GitHubでログイン</p>
+          </Button>
+        </div>
+        <p className="mt-4 flex justify-center text-gray-400">
+          ログインはユーザーを識別するために利用され、個人情報を収集することはありません
+        </p>
+        <p className="flex justify-center text-gray-400">
+          ユーザーの識別はGitHubのユーザー名を用いて行われます
+        </p>
+        <div className="w-fit mx-auto mt-4">
+          <Button variant={'outline'}>
+            <FaGithub className="text-xl mr-3" />
+            <a
+              href="https://github.com/siloneco/Telepapyrus"
+              target="_blank"
+              rel="noopener"
+            >
+              GitHub Repository
+            </a>
+          </Button>
+        </div>
       </div>
     </div>
   )
