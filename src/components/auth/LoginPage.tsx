@@ -22,7 +22,7 @@ export default function SigninPage() {
 
   return (
     <div className="h-[calc(100vh-130px)] flex items-center">
-      <div className="max-w-3xl mx-3 md:mx-auto">
+      <div className="max-w-3xl mx-3 md:mx-auto bg-card p-6 rounded-3xl">
         <h2 className="flex justify-center text-4xl mb-6">
           Telepapyrusデモサイト
         </h2>
@@ -31,8 +31,8 @@ export default function SigninPage() {
         </p>
         <div className="w-fit mx-auto mt-4">
           <Button
-            variant={'secondary'}
-            className="h-20 rounded-xl px-12"
+            variant="outline"
+            className="h-20 rounded-xl px-12 border-2"
             onClick={onClick}
             disabled={loading}
           >
@@ -41,15 +41,15 @@ export default function SigninPage() {
             <p className="text-xl ml-4">GitHubでログイン</p>
           </Button>
         </div>
-        <p className="mt-4 flex justify-center text-gray-400">
+        <p className="mt-4 flex justify-center text-card-foreground/60">
           ログインはユーザーを識別するために利用され、個人情報を収集することはありません
         </p>
-        <p className="flex justify-center text-gray-400">
+        <p className="flex justify-center text-card-foreground/60">
           ユーザーの識別はGitHubのユーザー名を用いて行われます
         </p>
         <div className="w-fit mx-auto mt-4">
-          <Button variant={'outline'}>
-            <FaGithub className="text-xl mr-3" />
+          <Button variant="outline" className="dark:text-link">
+            <FaGithub className="text-xl mr-3 dark:text-card-foreground" />
             <a
               href="https://github.com/siloneco/Telepapyrus"
               target="_blank"

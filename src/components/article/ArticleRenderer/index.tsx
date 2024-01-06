@@ -58,7 +58,12 @@ export default async function ArticleRenderer({ content }: Props) {
     props: CompiledMDXProps,
   ) {
     return (
-      <article className={cn(style.article, 'prose prose-invert max-w-none')}>
+      <article
+        className={cn(
+          style.article,
+          'prose prose-invert max-w-none bg-inherit text-inherit',
+        )}
+      >
         <MDXRemote
           source={props.source}
           components={{ ...props.components }}
