@@ -36,6 +36,7 @@ async function getMaxPageNumber(username: string): Promise<number> {
 
 export const metadata: Metadata = {
   title: 'ホーム | Telepapyrus',
+  description: 'Telepapyrusのデモサイトです',
   robots: 'noindex',
 }
 
