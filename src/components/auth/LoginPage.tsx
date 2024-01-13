@@ -21,7 +21,7 @@ export default function SigninPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-130px)] flex items-center">
+    <div className="h-[calc(100vh-170px)] flex items-center">
       <div className="max-w-3xl mx-3 md:mx-auto bg-card p-6 rounded-3xl">
         <h2 className="flex justify-center text-4xl mb-6">
           Telepapyrusデモサイト
