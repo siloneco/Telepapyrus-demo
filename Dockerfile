@@ -1,10 +1,14 @@
-# Run pnpm install and build Next.js project
-FROM node:20-alpine AS build
+# Setup pnpm
+FROM node:20-alpine AS pnpm
 
 # Enable pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+
+
+# Install packages and build Next.js project
+FROM pnpm AS build
 
 WORKDIR /work
 
@@ -17,14 +21,26 @@ COPY . .
 RUN pnpm run build
 
 
+# Install sharp
+FROM pnpm AS sharp
+
+WORKDIR /work
+
+COPY package.json ./package.d.json
+
+RUN SHARP_VERSION=`node -p -e "require('./package.d.json').dependencies.sharp"` \
+    pnpm install sharp@"$SHARP_VERSION"
+
+
 # Create runner image
 FROM gcr.io/distroless/nodejs20-debian12:nonroot AS runner
 
 WORKDIR /app
 
 # Uncomment this when you have at least one public asset.
-# COPY --from=build /app/public ./public
+# COPY --from=build --chown=65532:65532 /work/public ./public
 
+COPY --from=sharp --chown=65532:65532 /work/node_modules/ ./node_modules/
 COPY --from=build --chown=65532:65532 /work/.next/standalone ./
 COPY --from=build --chown=65532:65532 /work/.next/static ./.next/static
 
