@@ -31,6 +31,9 @@ const draftUseCaseMock: DraftUseCase = {
   deleteDraft: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
+  listDraft: jest.fn().mockImplementation(async () => {
+    throw new Error('Not Used and Not Implemented')
+  }),
   setDraftForPreview: jest
     .fn()
     .mockImplementation(async (username: string, draft: Draft) => {

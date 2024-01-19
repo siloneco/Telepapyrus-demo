@@ -2,16 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { getServerSession } from 'next-auth'
 import { getDraftUseCase } from '@/layers/use-case/draft/DraftUsesCase'
-import {
-  DraftExcessiveScopeError,
-  DraftInvalidDataError,
-  DraftNotFoundError,
-} from '@/layers/use-case/draft/errors'
 import { Draft } from '@/layers/entity/types'
 import NodeCache from 'node-cache'
 import { MAX_DRAFT_AMOUNT } from '@/lib/constants/UserLimits'
 
 const countCache = new NodeCache()
+import {
+  InvalidDataError,
+  NotFoundError,
+  UnexpectedBehaviorDetectedError,
+} from '@/layers/entity/errors'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,9 +34,9 @@ export async function GET(request: Request, { params }: Props) {
   const result = await getDraftUseCase().getDraft(username, id)
 
   if (result.isFailure()) {
-    if (result.error instanceof DraftNotFoundError) {
+    if (result.error instanceof NotFoundError) {
       return NextResponse.json({ error: 'Not Found' }, { status: 404 })
-    } else if (result.error instanceof DraftExcessiveScopeError) {
+    } else if (result.error instanceof UnexpectedBehaviorDetectedError) {
       // pass
     }
 
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest, { params }: Props) {
   const result = await getDraftUseCase().saveDraft(username, data)
 
   if (result.isFailure()) {
-    if (result.error instanceof DraftInvalidDataError) {
+    if (result.error instanceof InvalidDataError) {
       return NextResponse.json({ error: 'Invalid Data' }, { status: 400 })
     }
 
@@ -102,9 +102,9 @@ export async function DELETE(request: NextRequest, { params }: Props) {
   const result = await getDraftUseCase().deleteDraft(username, id)
 
   if (result.isFailure()) {
-    if (result.error instanceof DraftNotFoundError) {
+    if (result.error instanceof NotFoundError) {
       return NextResponse.json({ error: 'Not Found' }, { status: 404 })
-    } else if (result.error instanceof DraftExcessiveScopeError) {
+    } else if (result.error instanceof UnexpectedBehaviorDetectedError) {
       // pass
     }
 

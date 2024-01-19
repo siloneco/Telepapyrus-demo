@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TAG_NAME_MAX_LENGTH } from '@/lib/constants/Constants'
 import { getArticleUseCase } from '@/layers/use-case/article/ArticleUseCase'
-import {
-  ArticleExcessiveScopeError,
-  ArticleUnexpectedReturnValueError,
-} from '@/layers/use-case/article/errors'
 import { getServerSession } from 'next-auth'
 import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { UnexpectedBehaviorDetectedError } from '@/layers/entity/errors'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,9 +39,7 @@ export async function GET(request: NextRequest) {
   if (result.isFailure()) {
     const error = result.error
 
-    if (error instanceof ArticleExcessiveScopeError) {
-      // pass
-    } else if (error instanceof ArticleUnexpectedReturnValueError) {
+    if (error instanceof UnexpectedBehaviorDetectedError) {
       // pass
     }
 

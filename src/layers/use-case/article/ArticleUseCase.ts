@@ -25,6 +25,13 @@ const flushCachesIfSuccess = (
   }
 }
 
+const showErrorMessageIfItFails = (result: Result<any, Error>) => {
+  if (result.isFailure()) {
+    const error = result.error
+    console.error(`${error.name}: ${error.message}`)
+  }
+}
+
 export type PresentationArticle = Omit<
   Article,
   'date' | 'last_updated' | 'isPublic'
@@ -65,6 +72,7 @@ const createUseCase = (repo: ArticleRepository): ArticleUseCase => {
         hashedUsername,
         draft.id,
       )
+      showErrorMessageIfItFails(result)
       return result
     },
     updateArticle: async (username: string, draft: PublishableDraft) => {
@@ -76,25 +84,33 @@ const createUseCase = (repo: ArticleRepository): ArticleUseCase => {
         hashedUsername,
         draft.id,
       )
+      showErrorMessageIfItFails(result)
       return result
     },
     deleteArticle: async (username: string, id: string) => {
       const hashedUsername = sha256(username)
       const result = await deleteArticle(repo, hashedUsername, id)
       flushCachesIfSuccess(result, flushCacheFunctions, hashedUsername, id)
+      showErrorMessageIfItFails(result)
       return result
     },
     getArticle: async (username: string, id: string) => {
       const hashedUsername = sha256(username)
-      return await getArticle(repo, hashedUsername, id)
+      const result = await getArticle(repo, hashedUsername, id)
+      showErrorMessageIfItFails(result)
+      return result
     },
     countArticle: async (username: string, tags?: string[]) => {
       const hashedUsername = sha256(username)
-      return await countArticle(repo, hashedUsername, tags)
+      const result = await countArticle(repo, hashedUsername, tags)
+      showErrorMessageIfItFails(result)
+      return result
     },
     listArticle: async (username: string, data: ListArticleProps) => {
       const hashedUsername = sha256(username)
-      return await listArticle(repo, hashedUsername, data)
+      const result = await listArticle(repo, hashedUsername, data)
+      showErrorMessageIfItFails(result)
+      return result
     },
   }
 }

@@ -5,7 +5,7 @@ import {
   PresentationArticleOverview,
 } from '../ArticleUseCase'
 import NodeCache from 'node-cache'
-import { formatDate } from '@/lib/utils'
+import { concatErrorMessages, formatDate } from '@/lib/utils'
 
 const cacheMap = new Map<string, NodeCache>()
 const cacheTTL = 60
@@ -48,8 +48,10 @@ export const listArticle = async (
     return new Success(resultData)
   }
 
+  const errorMsg = result.error?.message
+
   return new Failure(
-    new Error(`Failed to list article: ${result.error?.message}`),
+    new Error(concatErrorMessages(`Failed to list articles`, errorMsg)),
   )
 }
 

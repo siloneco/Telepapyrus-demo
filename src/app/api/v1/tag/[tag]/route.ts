@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { getTagUseCase } from '@/layers/use-case/tag/TagUsesCase'
-import {
-  TagAlreadyExistsError,
-  TagExcessiveScopeError,
-  TagInvalidDataError,
-  TagNotFoundError,
-} from '@/layers/use-case/tag/errors'
 import { MAX_TAG_AMOUNT } from '@/lib/constants/UserLimits'
+import {
+  AlreadyExistsError,
+  InvalidDataError,
+  NotFoundError,
+  UnexpectedBehaviorDetectedError,
+} from '@/layers/entity/errors'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,9 +33,9 @@ export async function POST(request: NextRequest, { params }: Props) {
   if (result.isFailure()) {
     const error = result.error
 
-    if (error instanceof TagAlreadyExistsError) {
+    if (error instanceof AlreadyExistsError) {
       return NextResponse.json({ error: 'Tag already exists' }, { status: 409 })
-    } else if (error instanceof TagInvalidDataError) {
+    } else if (error instanceof InvalidDataError) {
       return NextResponse.json({ error: 'Invalid tag name' }, { status: 400 })
     }
 
@@ -82,9 +82,9 @@ export async function DELETE(request: NextRequest, { params }: Props) {
   if (result.isFailure()) {
     const error = result.error
 
-    if (error instanceof TagNotFoundError) {
+    if (error instanceof NotFoundError) {
       return NextResponse.json({ error: 'Not Found' }, { status: 404 })
-    } else if (error instanceof TagExcessiveScopeError) {
+    } else if (error instanceof UnexpectedBehaviorDetectedError) {
       // pass
     }
 

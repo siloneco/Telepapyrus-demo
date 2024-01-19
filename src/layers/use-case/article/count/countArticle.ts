@@ -1,11 +1,9 @@
 import { Failure, Result, Success } from '@/lib/utils/Result'
 import { ArticleRepository } from '@/layers/repository/ArticleRepository'
-import {
-  ArticleExcessiveScopeError,
-  ArticleUnexpectedReturnValueError,
-} from '../errors'
 import { FlushCacheFunction } from '../ArticleUseCase'
 import NodeCache from 'node-cache'
+import { UnexpectedBehaviorDetectedError } from '@/layers/entity/errors'
+import { concatErrorMessages } from '@/lib/utils'
 
 const cacheMap = new Map<string, NodeCache>()
 const cacheTTL = 60
@@ -14,12 +12,7 @@ export const countArticle = async (
   repo: ArticleRepository,
   userId: string,
   tags?: string[],
-): Promise<
-  Result<
-    number,
-    ArticleExcessiveScopeError | ArticleUnexpectedReturnValueError | Error
-  >
-> => {
+): Promise<Result<number, UnexpectedBehaviorDetectedError | Error>> => {
   const cacheKey = tags ? JSON.stringify(tags?.sort()) : 'all'
 
   const cache: NodeCache = cacheMap.has(userId)
@@ -41,19 +34,24 @@ export const countArticle = async (
   }
 
   const errorId = result.error?.id
+  const errorMsg = result.error?.message
 
   if (errorId === 'too-many-rows-selected') {
     return new Failure(
-      new ArticleExcessiveScopeError(`Too many rows selected.`),
+      new UnexpectedBehaviorDetectedError(
+        concatErrorMessages('Too many rows selected', errorMsg),
+      ),
     )
   } else if (errorId === 'invalid-data-queried') {
     return new Failure(
-      new ArticleUnexpectedReturnValueError(`Invalid data returned.`),
+      new UnexpectedBehaviorDetectedError(
+        concatErrorMessages('Invalid data queried', errorMsg),
+      ),
     )
   }
 
   return new Failure(
-    new Error(`Failed to count articles: ${result.error?.message}`),
+    new Error(concatErrorMessages('Failed to count article', errorMsg)),
   )
 }
 

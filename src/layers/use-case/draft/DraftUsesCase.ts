@@ -10,6 +10,7 @@ import { setDraftForPreview } from './setForPreview/setDraftForPreview'
 import { getDraftForPreview } from './getForPreview/getForPreview'
 import { deleteDraft } from './delete/deleteDraft'
 import { sha256 } from '@/lib/utils'
+import { listDraft } from './list/listDraft'
 
 export type PresentationDraft = {
   id: string
@@ -30,6 +31,10 @@ const createUseCase = (repo: DraftRepository): DraftUseCase => {
     deleteDraft: async (username: string, id: string) => {
       const hashedUsername = sha256(username)
       return deleteDraft(repo, hashedUsername, id)
+    },
+    listDraft: async (username: string, page?: number) => {
+      const hashedUsername = sha256(username)
+      return listDraft(repo, hashedUsername, page)
     },
     setDraftForPreview: async (username: string, draft: Draft) => {
       const hashedUsername = sha256(username)

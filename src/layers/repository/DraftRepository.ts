@@ -4,6 +4,7 @@ import {
   deleteDraft,
 } from './mariadb/draft/delete/deleteDraft'
 import { GetDraftReturnProps, getDraft } from './mariadb/draft/get/getDraft'
+import { ListDraftReturnProps, listDraft } from './mariadb/draft/list/listDraft'
 import { SaveDraftReturnProps, saveDraft } from './mariadb/draft/save/saveDraft'
 import {
   GetDraftForPreviewReturnProps,
@@ -18,6 +19,7 @@ export interface DraftRepository {
   saveDraft(_user: string, _draft: Draft): Promise<SaveDraftReturnProps>
   getDraft(_user: string, _id: string): Promise<GetDraftReturnProps>
   deleteDraft(_user: string, _id: string): Promise<DeleteDraftReturnProps>
+  listDraft(_user: string, _page?: number): Promise<ListDraftReturnProps>
 
   setDraftForPreview(
     _user: string,
@@ -34,6 +36,7 @@ export const getRepository = (): DraftRepository => {
     saveDraft,
     getDraft,
     deleteDraft,
+    listDraft,
 
     setDraftForPreview,
     getDraftForPreview,

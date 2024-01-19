@@ -10,17 +10,17 @@ import {
 } from '@/layers/use-case/article/ArticleUseCase'
 import { ArticleUseCase } from '@/layers/use-case/article/interface'
 import { Failure, Success } from '@/lib/utils/Result'
-import {
-  ArticleAlreadyExistsError,
-  ArticleExcessiveScopeError,
-  ArticleInvalidDataError,
-  ArticleNotFoundError,
-} from '@/layers/use-case/article/errors'
 import { Draft, PublishableDraft } from '@/layers/entity/types'
 import { getServerSession } from 'next-auth'
 import { DraftUseCase } from '@/layers/use-case/draft/interface'
 import { getDraftUseCase } from '@/layers/use-case/draft/DraftUsesCase'
 import { getTestUsername } from '@/layers/constant/databaseConstants'
+import {
+  AlreadyExistsError,
+  InvalidDataError,
+  NotFoundError,
+  UnexpectedBehaviorDetectedError,
+} from '@/layers/entity/errors'
 
 const baseArticle: PresentationArticle = {
   id: 'id',
@@ -53,52 +53,52 @@ const mockKeyMap = {
 const articleUseCaseMock: ArticleUseCase = {
   createArticle: jest
     .fn()
-    .mockImplementation(async (_user: string, draft: Draft) => {
+    .mockImplementation(async (username: string, draft: Draft) => {
       if (draft.id === mockKeyMap.success) {
         return new Success(baseArticle)
       } else if (draft.id === mockKeyMap.alreadyExists) {
-        return new Failure(new ArticleAlreadyExistsError(''))
+        return new Failure(new AlreadyExistsError(''))
       } else if (draft.id === mockKeyMap.invalidData) {
-        return new Failure(new ArticleInvalidDataError(''))
+        return new Failure(new InvalidDataError(''))
       } else {
         return new Failure(new Error(''))
       }
     }),
   getArticle: jest
     .fn()
-    .mockImplementation(async (_user: string, id: string) => {
+    .mockImplementation(async (username: string, id: string) => {
       if (id === mockKeyMap.success) {
         return new Success(baseArticle)
       } else if (id === mockKeyMap.notExists) {
-        return new Failure(new ArticleNotFoundError(''))
+        return new Failure(new NotFoundError(''))
       } else if (id === mockKeyMap.scopeError) {
-        return new Failure(new ArticleExcessiveScopeError(''))
+        return new Failure(new UnexpectedBehaviorDetectedError(''))
       } else {
         return new Failure(new Error(''))
       }
     }),
   updateArticle: jest
     .fn()
-    .mockImplementation(async (_user: string, draft: Draft) => {
+    .mockImplementation(async (username: string, draft: Draft) => {
       if (draft.id === mockKeyMap.success) {
         return new Success(baseArticle)
       } else if (draft.id === mockKeyMap.notExists) {
-        return new Failure(new ArticleNotFoundError(''))
+        return new Failure(new NotFoundError(''))
       } else if (draft.id === mockKeyMap.invalidData) {
-        return new Failure(new ArticleInvalidDataError(''))
+        return new Failure(new InvalidDataError(''))
       } else {
         return new Failure(new Error(''))
       }
     }),
   deleteArticle: jest
     .fn()
-    .mockImplementation(async (_user: string, id: string) => {
+    .mockImplementation(async (username: string, id: string) => {
       if (id === mockKeyMap.success) {
         return new Success(baseArticle)
       } else if (id === mockKeyMap.notExists) {
-        return new Failure(new ArticleNotFoundError(''))
+        return new Failure(new NotFoundError(''))
       } else if (id === mockKeyMap.scopeError) {
-        return new Failure(new ArticleExcessiveScopeError(''))
+        return new Failure(new UnexpectedBehaviorDetectedError(''))
       } else {
         return new Failure(new Error(''))
       }
@@ -122,6 +122,9 @@ const draftUseCaseMock: DraftUseCase = {
     throw new Error('Not Used and Not Implemented')
   }),
   getDraft: jest.fn().mockImplementation(async () => {
+    throw new Error('Not Used and Not Implemented')
+  }),
+  listDraft: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
   setDraftForPreview: jest.fn().mockImplementation(async () => {

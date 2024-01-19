@@ -1,10 +1,13 @@
 import { Failure, Result, Success } from '@/lib/utils/Result'
-import { ArticleExcessiveScopeError, ArticleNotFoundError } from '../errors'
 import { ArticleRepository } from '@/layers/repository/ArticleRepository'
 import { Article } from '@/layers/entity/types'
-import { formatDate } from '@/lib/utils'
+import { concatErrorMessages, formatDate } from '@/lib/utils'
 import { FlushCacheFunction, PresentationArticle } from '../ArticleUseCase'
 import NodeCache from 'node-cache'
+import {
+  NotFoundError,
+  UnexpectedBehaviorDetectedError,
+} from '@/layers/entity/errors'
 
 const cacheMap = new Map<string, NodeCache>()
 const cacheTTL = 60
@@ -28,7 +31,7 @@ export const getArticle = async (
 ): Promise<
   Result<
     PresentationArticle,
-    ArticleNotFoundError | ArticleExcessiveScopeError | Error
+    NotFoundError | UnexpectedBehaviorDetectedError | Error
   >
 > => {
   const cacheKey = id
@@ -52,17 +55,27 @@ export const getArticle = async (
   }
 
   const errorId = result.error?.id
+  const errorMsg = result.error?.message
 
   if (errorId === 'not-exists') {
-    return new Failure(new ArticleNotFoundError(`Article not found: ${id}`))
+    return new Failure(
+      new NotFoundError(
+        concatErrorMessages(`Article "${id}" not found`, errorMsg),
+      ),
+    )
   } else if (errorId === 'too-many-rows-selected') {
     return new Failure(
-      new ArticleExcessiveScopeError(`Too many rows selected: ${id}`),
+      new UnexpectedBehaviorDetectedError(
+        concatErrorMessages(
+          `Too many rows selected while fetching article "${id}"`,
+          errorMsg,
+        ),
+      ),
     )
   }
 
   return new Failure(
-    new Error(`Failed to get article: ${result.error?.message}`),
+    new Error(concatErrorMessages(`Failed to get article "${id}"`, errorMsg)),
   )
 }
 

@@ -2,7 +2,7 @@ import { Failure, Result, Success } from '@/lib/utils/Result'
 import { PresentationDraft } from '../DraftUsesCase'
 import { Draft } from '@/layers/entity/types'
 import { DraftRepository } from '@/layers/repository/DraftRepository'
-import { DraftNotFoundError } from '../errors'
+import { NotFoundError } from '@/layers/entity/errors'
 
 const convertToPresentationDraft = (draft: Draft) => {
   const presentationDraft: PresentationDraft = {
@@ -16,7 +16,7 @@ export const getDraftForPreview = async (
   repo: DraftRepository,
   userId: string,
   id: string,
-): Promise<Result<PresentationDraft, DraftNotFoundError | Error>> => {
+): Promise<Result<PresentationDraft, NotFoundError | Error>> => {
   const result = await repo.getDraftForPreview(userId, id)
   if (result.success) {
     const presentationDraft = convertToPresentationDraft(result.data!)
@@ -26,9 +26,7 @@ export const getDraftForPreview = async (
   const errorId = result.error?.id
 
   if (errorId === 'not-exists') {
-    return new Failure(
-      new DraftNotFoundError(`Draft for preview not found: ${id}`),
-    )
+    return new Failure(new NotFoundError(`Draft for preview not found: ${id}`))
   }
 
   return new Failure(

@@ -8,12 +8,12 @@ import { Draft } from '@/layers/entity/types'
 import { getServerSession } from 'next-auth'
 import { getDraftUseCase } from '@/layers/use-case/draft/DraftUsesCase'
 import { DraftUseCase } from '@/layers/use-case/draft/interface'
-import {
-  DraftExcessiveScopeError,
-  DraftInvalidDataError,
-  DraftNotFoundError,
-} from '@/layers/use-case/draft/errors'
 import { getTestUsername } from '@/layers/constant/databaseConstants'
+import {
+  InvalidDataError,
+  NotFoundError,
+  UnexpectedBehaviorDetectedError,
+} from '@/layers/entity/errors'
 
 const baseData: Draft = {
   id: 'id',
@@ -24,7 +24,7 @@ const baseData: Draft = {
 const mockKeyMap = {
   success: 'success',
   notExists: 'not-exists',
-  scopeError: 'scope-error',
+  illegalBehavior: 'illegal-behavior',
   alreadyExists: 'already-exists',
   invalidData: 'invalid-data',
   error: 'error',
@@ -37,7 +37,7 @@ const draftUseCaseMock: DraftUseCase = {
       if (draft.id === mockKeyMap.success) {
         return new Success(true)
       } else if (draft.id === mockKeyMap.invalidData) {
-        return new Failure(new DraftInvalidDataError(''))
+        return new Failure(new InvalidDataError(''))
       } else {
         return new Failure(new Error(''))
       }
@@ -48,9 +48,9 @@ const draftUseCaseMock: DraftUseCase = {
       if (id === mockKeyMap.success) {
         return new Success(baseData)
       } else if (id === mockKeyMap.notExists) {
-        return new Failure(new DraftNotFoundError(''))
-      } else if (id === mockKeyMap.scopeError) {
-        return new Failure(new DraftExcessiveScopeError(''))
+        return new Failure(new NotFoundError(''))
+      } else if (id === mockKeyMap.illegalBehavior) {
+        return new Failure(new UnexpectedBehaviorDetectedError(''))
       } else {
         return new Failure(new Error(''))
       }
@@ -61,13 +61,16 @@ const draftUseCaseMock: DraftUseCase = {
       if (id === mockKeyMap.success) {
         return new Success(true)
       } else if (id === mockKeyMap.notExists) {
-        return new Failure(new DraftNotFoundError(''))
-      } else if (id === mockKeyMap.scopeError) {
-        return new Failure(new DraftExcessiveScopeError(''))
+        return new Failure(new NotFoundError(''))
+      } else if (id === mockKeyMap.illegalBehavior) {
+        return new Failure(new UnexpectedBehaviorDetectedError(''))
       } else {
         return new Failure(new Error(''))
       }
     }),
+  listDraft: jest.fn().mockImplementation(async () => {
+    throw new Error('Not Used and Not Implemented')
+  }),
   setDraftForPreview: jest.fn().mockImplementation(async () => {
     throw new Error('Not Used and Not Implemented')
   }),
@@ -127,7 +130,7 @@ describe('GET /api/v1/draft/[id]', () => {
     const req = new NextRequest('http://localhost/')
 
     const data: NextResponse<any> = await GET(req, {
-      params: { id: mockKeyMap.scopeError },
+      params: { id: mockKeyMap.illegalBehavior },
     })
 
     expect(data.status).toBe(500)
@@ -262,7 +265,7 @@ describe('DELETE /api/v1/draft/[id]', () => {
     })
 
     const result: NextResponse<any> = await DELETE(req, {
-      params: { id: mockKeyMap.scopeError },
+      params: { id: mockKeyMap.illegalBehavior },
     })
     expect(result.status).toBe(500)
   })
