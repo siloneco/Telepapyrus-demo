@@ -4,6 +4,8 @@ import { isValidID } from '@/lib/utils'
 import { Metadata, ResolvingMetadata } from 'next'
 import WriteWorkspace from '@/components/model/write-article/WriteWorkspace'
 import { getArticleUseCase } from '@/layers/use-case/article/ArticleUseCase'
+import { getServerSession } from 'next-auth'
+import { GET as authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 type MetadataProps = {
   params: { id: string }
@@ -36,7 +38,10 @@ export default async function Page({ params }: Props) {
     redirect('/admin/draft/error/id-too-long')
   }
 
-  const article = await getArticleUseCase().getArticle(id)
+  const session: any = await getServerSession(authOptions)
+  const username = session?.user?.name
+
+  const article = await getArticleUseCase().getArticle(username, id)
 
   if (article.isSuccess()) {
     redirect(`/admin/draft/error/id-duplicate?id=${id}`)
