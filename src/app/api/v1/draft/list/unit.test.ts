@@ -111,7 +111,7 @@ describe('GET /api/v1/draft/list', () => {
 
     const callLength = 3
     expect(listDraftMock.mock.calls).toHaveLength(callLength)
-    expect(listDraftMock.mock.calls[callLength - 1][0]).toEqual(1)
+    expect(listDraftMock.mock.calls[callLength - 1][1]).toEqual(1)
   })
 
   it('responds 400 (Bad Request) when page number is negative', async () => {
