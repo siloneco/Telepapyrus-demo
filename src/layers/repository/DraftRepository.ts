@@ -1,5 +1,9 @@
 import { Draft } from '../entity/types'
 import {
+  ChangeDraftIdReturnProps,
+  changeDraftId,
+} from './mariadb/draft/changeId/changeDraftId'
+import {
   DeleteDraftReturnProps,
   deleteDraft,
 } from './mariadb/draft/delete/deleteDraft'
@@ -20,6 +24,11 @@ export interface DraftRepository {
   getDraft(_user: string, _id: string): Promise<GetDraftReturnProps>
   deleteDraft(_user: string, _id: string): Promise<DeleteDraftReturnProps>
   listDraft(_user: string, _page?: number): Promise<ListDraftReturnProps>
+  changeDraftId(
+    _user: string,
+    _oldId: string,
+    _newId: string,
+  ): Promise<ChangeDraftIdReturnProps>
 
   setDraftForPreview(
     _user: string,
@@ -37,6 +46,7 @@ export const getRepository = (): DraftRepository => {
     getDraft,
     deleteDraft,
     listDraft,
+    changeDraftId,
 
     setDraftForPreview,
     getDraftForPreview,

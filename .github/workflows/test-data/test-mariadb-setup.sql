@@ -72,4 +72,8 @@ INSERT INTO `telepapyrus`.`drafts` VALUES
 ("test-user", "test-draft-create-success-update", "title", "content"),
 ("test-user", "test-draft-get-success", "title", "content"),
 ("test-user", "test-draft-delete-fail-too-many-deleted-1", "title", "content"),
-("test-user", "test-draft-delete-fail-too-many-deleted-2", "title", "content");
+("test-user", "test-draft-delete-fail-too-many-deleted-2", "title", "content"),
+("test-user", "test-draft-changeid-fail-too-many-affected-1", "title", "content"),
+("test-user", "test-draft-changeid-fail-too-many-affected-2", "title", "content"),
+("test-user", "test-draft-changeid-fail-already-exists-1", "title", "content"),
+("test-user", "test-draft-changeid-fail-already-exists-2", "title", "content");
