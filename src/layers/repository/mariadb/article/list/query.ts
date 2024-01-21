@@ -46,8 +46,8 @@ FROM
         GROUP_CONCAT(DISTINCT tag SEPARATOR ',') AS tags
   	  FROM tags
       GROUP BY id
-	)
-  AS tags ON tags.id = articles.id;
+	) AS tags ON tags.id = articles.id
+ORDER BY date DESC;
 `
 
 export const listAllWithTagsAndPageQuery = `
